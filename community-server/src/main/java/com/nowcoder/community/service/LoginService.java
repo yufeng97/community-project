@@ -71,8 +71,9 @@ public class LoginService {
 
     public boolean logout(HttpServletRequest request) {
         LoginUser loginUser = jwtToken.getLoginUser(request);
+        log.info("logout user: " + loginUser);
         if (loginUser != null) {
-            redisTemplate.delete(loginUser.getToken());
+            jwtToken.delLoginUser(loginUser.getToken());
             return true;
         }
         return false;

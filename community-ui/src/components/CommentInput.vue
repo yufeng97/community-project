@@ -60,10 +60,13 @@ import {
   nextTick,
   onMounted,
   onBeforeUnmount,
+  PropType,
 } from "vue";
 import EmojiSelector from "./EmojiSelector.vue";
 import userStore from "@/store/user";
 import { useRouter } from "vue-router";
+import { Reply, Comment } from "@/types";
+import { addComment, addReply } from "@/api/comment";
 
 const router = useRouter();
 
@@ -79,7 +82,7 @@ const props = defineProps({
     default: "comment-root",
   },
   comment: {
-    type: Object,
+    type: Object as PropType<Comment | Reply>,
     default: () => {},
   },
   parent: {
@@ -88,6 +91,7 @@ const props = defineProps({
   },
   postId: {
     type: String,
+    default: "",
   },
   // uploadImg: {
   //   type: Function,
@@ -106,7 +110,12 @@ const input = ref<HTMLInputElement | null>(null);
 // const upload = ref<HTMLInputElement | null>(null);
 
 // emit
-const emit = defineEmits(["form-submit", "form-delete"]);
+const emit = defineEmits([
+  "form-submit",
+  "form-delete",
+  "comment-submit",
+  "reply-submit",
+]);
 
 const isRoot = computed(() => {
   return props.id.toString() === "comment-root";
@@ -155,15 +164,16 @@ const handlePaste = (e: ClipboardEvent) => {
 // * 点击评论
 const handleSubmit = () => {
   if (!value.value.trim()) return;
-  console.log(props.id);
-  console.log(value.value);
-  console.log(props.comment);
-  console.log(props.parent);
-  console.log(store.isLogin);
-  console.log(store.name);
-
   if (!store.isLogin) {
     router.push("/login");
+  }
+
+  if (isRoot.value) {
+    // submit comment
+    sendComment(value.value);
+  } else {
+    // submit reply
+    sendReply(props.comment.author.id as string, value.value);
   }
 
   // const user = (props.comment && props.comment.user) || null;
@@ -183,6 +193,37 @@ const handleSubmit = () => {
   //   data.children = [];
   // }
   // emit("form-submit", { newComment: data, parent: parent });
+};
+
+const sendComment = (content: string) => {
+  console.log("send comment");
+  console.log("postId", props.postId);
+  console.log("content", content);
+  addComment({ postId: props.postId, content: content })
+    .then((res) => {
+      console.log(res);
+      emit("comment-submit");
+    })
+    .catch((err) => console.log(err));
+};
+
+const sendReply = (authorId: string, content: string) => {
+  console.log("send reply");
+  console.log("author", authorId);
+  console.log("content", content);
+  const commentId = isSub.value ? props.parent.id : props.comment.id;
+  console.log(commentId);
+  
+  addReply({
+    commentId: commentId,
+    content: content,
+    toId: props.comment.author.id as string,
+  })
+    .then((res) => {
+      console.log(res);
+      emit("reply-submit");
+    })
+    .catch((err) => console.log(err));
 };
 
 // * 重置组件状态

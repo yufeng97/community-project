@@ -103,10 +103,10 @@
     </select>
 
 
-    <insert id="insertComment" parameterType="com.nowcoder.community.entity.Comment">
-        insert into comment_old(<include refid="insertFields"/>)
-        values(#{userId}, #{entityType}, #{entityId}, #{targetId}, #{content}, #{status}, #{createTime} )
-    </insert>
+<!--    <insert id="insertComment" parameterType="com.nowcoder.community.entity.Comment">-->
+<!--        insert into comment_old(<include refid="insertFields"/>)-->
+<!--        values(#{userId}, #{entityType}, #{entityId}, #{targetId}, #{content}, #{status}, #{createTime} )-->
+<!--    </insert>-->
 
     <select id="selectCommentListByPostId" resultMap="commentMap">
         select `comment`.id          as comment_id

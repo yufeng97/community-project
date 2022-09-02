@@ -8,6 +8,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class ReplyDto {
-    private int commentId;
+    private Integer commentId;
     private String content;
+    private Integer toId;
 }

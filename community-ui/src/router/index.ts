@@ -11,11 +11,11 @@ const routes: Array<RouteRecordRaw> = [
         name: 'letter',
         component: () => import('@/views/pages/Letter.vue'),
     },
-    {
-        path: '/message',
-        name: 'message',
-        component: () => import('@/views/pages/Message.vue'),
-    },
+    // {
+    //     path: '/message',
+    //     name: 'message',
+    //     component: () => import('@/views/pages/Message.vue'),
+    // },
     {
         path: '/register',
         name: 'register',
@@ -68,9 +68,9 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes,
 })
-router.beforeEach((to, from, next) => {
-    // console.log(to, from);
-    next();
-})
+// router.beforeEach((to, from, next) => {
+//     // console.log(to, from);
+//     next();
+// })
 
 export {router }

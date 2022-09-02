@@ -6,6 +6,7 @@ export interface CommentDTO {
 export interface ReplyDTO {
     commentId: string,
     content: string,
+    toId: string,
 }
 
 export interface PostDTO {

@@ -7,6 +7,7 @@
     :comment="child"
     :user="child.author"
     :parent="parent"
+    @update-replies="handleCurrentChange(pageNum, commentId)"
   />
   <el-pagination
     background
@@ -14,7 +15,7 @@
     hide-on-single-page
     :pageSize="pageSize"
     v-model:currentPage="pageNum"
-    :total="parent?.replyCount"
+    :total="replyCount"
     @current-change="handleCurrentChange(pageNum, commentId)"
   />
 </template>
@@ -46,6 +47,7 @@ const props = defineProps({
 
 const pageNum = ref(1);
 const pageSize: number = 5;
+const replyCount = ref(props.parent?.replyCount);
 const replies = ref(props.replies);
 
 const handleCurrentChange = (
@@ -57,6 +59,7 @@ const handleCurrentChange = (
     .then((res) => {
       console.log(res);
       replies.value = res.rows;
+      replyCount.value = res.total;
     });
 };
 </script>

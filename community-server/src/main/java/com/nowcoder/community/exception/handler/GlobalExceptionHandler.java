@@ -2,6 +2,7 @@ package com.nowcoder.community.exception.handler;
 
 import com.nowcoder.community.constant.HttpStatus;
 import com.nowcoder.community.exception.BadRequestException;
+import com.nowcoder.community.exception.NotFoundException;
 import com.nowcoder.community.exception.UnAuthorizationException;
 import com.nowcoder.community.exception.UserException;
 import com.nowcoder.community.util.CommonResult;
@@ -38,7 +39,7 @@ public class GlobalExceptionHandler {
         String requestURI = request.getRequestURI();
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         log.error("请求地址'{}',token过期'{}'", requestURI, e.getMessage());
-        return CommonResult.fail(HttpServletResponse.SC_UNAUTHORIZED, "没有权限，请联系管理员授权");
+        return CommonResult.fail(HttpServletResponse.SC_UNAUTHORIZED, "token过期，请重新登录");
     }
 
     /**
@@ -54,6 +55,14 @@ public class GlobalExceptionHandler {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         log.error("请求地址'{}',请求非法'{}'", requestURI, e.getMessage());
         return CommonResult.fail(HttpServletResponse.SC_BAD_REQUEST, "请求非法");
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public CommonResult<String> handleNotFoundException(NotFoundException e, HttpServletRequest request, HttpServletResponse response) {
+        String requestURI = request.getRequestURI();
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        log.error("请求地址'{}',资源不存在'{}'", requestURI, e.getMessage());
+        return CommonResult.fail(HttpServletResponse.SC_NOT_FOUND, "资源不存在");
     }
 
     /**

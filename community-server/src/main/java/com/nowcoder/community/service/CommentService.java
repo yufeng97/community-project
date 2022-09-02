@@ -1,9 +1,11 @@
 package com.nowcoder.community.service;
 
+import com.nowcoder.community.dto.CommentDto;
 import com.nowcoder.community.entity.Comment;
 import com.nowcoder.community.entity.Comment2;
 import com.nowcoder.community.entity.Reply;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.exception.IllegalArgumentException;
 import com.nowcoder.community.mapper.CommentMapper;
 import com.nowcoder.community.mapper.UserMapper;
 import com.nowcoder.community.util.CommunityConstant;
@@ -31,7 +33,7 @@ public class CommentService implements CommunityConstant {
     private SensitiveFilter sensitiveFilter;
 
     @Autowired
-    private DiscussPostService DiscussPostService;
+    private DiscussPostService discussPostService;
 
     public List<Comment> findCommentsByEntity(int entityType, int entityId, int offset, int limit) {
         return commentMapper.selectCommentsByEntity(entityType, entityId, offset, limit);
@@ -53,20 +55,40 @@ public class CommentService implements CommunityConstant {
         // 更新帖子评论数量
         if (comment.getEntityType() == ENTITY_TYPE_POST) {
             int count = commentMapper.selectCommentCountByEntity(comment.getEntityType(), comment.getEntityId());
-            DiscussPostService.updateCommentCount(comment.getEntityId(), count);
+            discussPostService.updateCommentCount(comment.getEntityId(), count);
         }
 
         return rows;
     }
 
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public int addComment(Comment2 comment) {
         if (comment == null) {
             throw new IllegalArgumentException("参数不能为空");
         }
         comment.setContent(HtmlUtils.htmlEscape(comment.getContent()));
         comment.setContent(sensitiveFilter.filter(comment.getContent()));
-//        int rows = commentMapper.insertComment(comment);
-        return 0;
+        int rows = commentMapper.insertComment(comment);
+
+        // 更新帖子评论数量
+        long count = queryPostCommentCount(comment.getPostId());
+        discussPostService.updateCommentCount(comment.getPostId(), count);
+        return rows;
+    }
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public int addReply(Reply reply) {
+        if (reply == null) {
+            throw new IllegalArgumentException();
+        }
+        reply.setContent(HtmlUtils.htmlEscape(reply.getContent()));
+        reply.setContent(sensitiveFilter.filter(reply.getContent()));
+        int rows = commentMapper.insertReply(reply);
+
+        // 更新评论回复数量
+        long count = queryCommentReplyCount(reply.getCommentId());
+        commentMapper.updateReplyCount(reply.getId(), count);
+        return rows;
     }
 
     public List<CommentVo> queryPostCommentList(int postId, int offset, int limit, int replyLimit) {
@@ -105,6 +127,10 @@ public class CommentService implements CommunityConstant {
         return commentMapper.selectCommentCountByPostId(postId);
     }
 
+    public long queryCommentReplyCount(int commentId) {
+        return commentMapper.selectReplyCountByCommentId(commentId);
+    }
+
     public List<ReplyVo> queryCommentReplyList(int commentId) {
         List<ReplyVo> replyVos = commentMapper.selectReplyListByCommentId(commentId);
         if (!replyVos.isEmpty()) {
@@ -127,4 +153,9 @@ public class CommentService implements CommunityConstant {
         }
         return replyVos;
     }
+
+    public boolean checkCommentExistById(int id) {
+        return commentMapper.checkCommentExistById(id);
+    }
+
 }

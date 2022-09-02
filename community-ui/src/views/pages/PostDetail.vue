@@ -23,6 +23,7 @@
       layout="prev, pager, next"
       hide-on-single-page
       v-model:currentPage="page.pageNum"
+      :pageSize="page.pageSize"
       :total="commentCount"
       @current-change="handleCurrentChange"
     />
@@ -30,7 +31,12 @@
 
   <!-- 回帖输入 -->
   <el-card class="box-card" id="comment-input">
-    <comment-input ref="input" placeholder="在这里畅所欲言你的看法吧" :post-id="postId"/>
+    <comment-input
+      ref="input"
+      placeholder="在这里畅所欲言你的看法吧"
+      :post-id="postId"
+      @commentSubmit="handleCommentSubmit"
+    />
   </el-card>
 </template>
 
@@ -57,7 +63,9 @@ const page = reactive({
   // isAsc
 });
 
-page.pageNum = Number.parseInt(route.query.page as string);
+if (route.query.page) {
+  page.pageNum = Number.parseInt(route.query.page as string);
+}
 
 const comments = ref<Comment[]>([]);
 
@@ -83,6 +91,11 @@ const handleCurrentChange = (currentPage: number) => {
   router.replace({ path: route.path, query: { page: currentPage } });
 };
 
+const handleCommentSubmit = () => {
+  getPost();
+  getComments(page.pageNum);
+};
+
 const getPost = () => {
   getPostDetail(postId.value, page).then((res) => {
     postDetail.value = res.data;
@@ -92,18 +105,23 @@ const getPost = () => {
   });
 };
 
-const getComments = (page: number = 1) => {
-  getPostComments(postId.value, { pageNum: page, pageSize, orderBy }).then(
-    (res) => {
-      console.log(res);
-      comments.value = res.data.rows;
-      router.replace({ path: route.path, query: { page: page } });
-    }
-  );
+const getComments = (pageNum: number = 1) => {
+  console.log(postId);
+  console.log(page);
+  
+  getPostComments(
+    postId.value,
+    //  { pageNum: pageNum, pageSize, orderBy }
+    page
+  ).then((res) => {
+    console.log(res);
+    comments.value = res.data.rows;
+    router.replace({ path: route.path, query: { page: pageNum } });
+  });
 };
 
 getPost();
-getComments();
+getComments(page.pageNum);
 </script>
 
 <style scoped>

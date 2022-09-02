@@ -24,10 +24,13 @@ public interface DiscussPostMapper {
     DiscussPost selectDiscussPostById(int id);
 
     @Update("update discuss_post set comment_count = #{commentCount} where id = #{id}")
-    int updateCommentCount(int id, int commentCount);
+    int updateCommentCount(int id, long commentCount);
 
     List<PostInfo> selectPostInfoList(int userId);
 
     @Select("select * from discuss_post where id=#{id}")
     PostVo selectPostById(int id);
+
+    @Select("select exists(select 1 from discuss_post where id=#{id} and status!=2)")
+    boolean checkPostExistById(int id);
 }

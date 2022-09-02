@@ -55,7 +55,7 @@ export default defineStore({
     getInfo() {
       return new Promise<void>((resolve, reject) => {
         getInfo()
-        .then(res => res.data)
+          .then((res) => res.data)
           .then((res) => {
             const user = res.user;
             const avatar =
@@ -76,11 +76,11 @@ export default defineStore({
       return new Promise<void>((resolve, reject) => {
         logout(this.token)
           .then(() => {
-            // ElMessage({
-            //     message: '登录退出。',
-            //     type: 'success',
-            //     duration: 2000
-            // })
+            ElMessage({
+              message: "登录退出。",
+              type: "success",
+              duration: 2000,
+            });
             this.changeState();
             this.setToken("");
             removeToken();

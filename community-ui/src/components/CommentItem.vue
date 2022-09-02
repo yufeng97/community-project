@@ -33,10 +33,10 @@
             >回复
             <span class="reply-target">
               <router-link
-                v-if="comment.target"
-                :to="`/user/${comment.target?.id}`"
+                v-if="(comment as Reply).target "
+                :to="`/user/${(comment as Reply).target?.id}`"
               >
-                {{ comment.target?.username }}
+                {{ (comment as Reply).target?.username }}
               </router-link>
 
               <router-link v-else :to="`/user/${parent.author.id}`">
@@ -116,6 +116,8 @@
           :id="id"
           :placeholder="`回复${user && user.username}...`"
           :comment="comment"
+          :parent="parent"
+          @reply-submit="$emit('update-replies')"
         />
 
         <!-- 评论表单组件 -->
@@ -157,6 +159,8 @@ const props = defineProps({
   },
 });
 
+const emit = defineEmits(['update-replies'])
+
 const isShowInput = ref(false);
 
 const replyButtonClick = () => {
@@ -189,6 +193,10 @@ const formatTime = (time: string, local = false) => {
       return Math.floor(diff / 3600 / 24 / 365) + "年前";
   }
 };
+
+const handleReplySubmit = () => {
+
+}
 </script>
 
 <style lang="scss" scoped>

@@ -14,26 +14,6 @@
     <!-- 单条评论下的回复列表 -->
     <template #subList="{ parentId }">
       <div class="sub-comment-list" v-if="comment.replies.length > 0">
-        <!-- 单条回复 -->
-        <!-- <comment-item
-          v-for="(child, j) in comment.replies"
-          :id="`${parentId}-${j}`"
-          :key="`${parentId}-${j}`"
-          :ref="`${parentId}-${j}`"
-          :comment="child"
-          :user="child.author"
-          :parent="comment"
-        />
-        <el-pagination
-          background
-          layout="prev, pager, next"
-          hide-on-single-page
-          :pageSize="pageSize"
-          v-model:currentPage="pageNum"
-          :total="comment.replyCount"
-          @current-change="handleCurrentChange(pageNum, comment.id, i)"
-        /> -->
-
         <reply-list
           :id="parentId"
           :comment-id="comment.id"
@@ -66,6 +46,7 @@ const props = defineProps({
 
 const pageNum = ref(1);
 const pageSize: number = 5;
+const isShowInput = ref(false);
 
 const handleCurrentChange = (
   currentPage: number,
@@ -75,7 +56,6 @@ const handleCurrentChange = (
   getCommentReply(commentId, currentPage, index);
 };
 
-const isShowInput = ref(false);
 
 const addCommentClick = () => {
   isShowInput.value = !isShowInput.value;

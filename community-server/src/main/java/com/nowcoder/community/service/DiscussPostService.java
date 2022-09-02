@@ -83,7 +83,11 @@ public class DiscussPostService {
         return postVo;
     }
 
-    public int updateCommentCount(int id, int commentCount) {
+    public int updateCommentCount(int id, long commentCount) {
         return discussPostMapper.updateCommentCount(id, commentCount);
+    }
+
+    public boolean checkPostExistById(int id) {
+        return discussPostMapper.checkPostExistById(id);
     }
 }

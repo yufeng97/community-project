@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -27,30 +28,23 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class JwtToken {
 
+    protected static final long MILLIS_SECOND = 1000;
+    protected static final long MILLIS_MINUTE = 60 * MILLIS_SECOND;
+    private static final long MILLIS_MINUTE_TEN = 20 * 60 * 1000L;
     // 令牌自定义标识
     @Value("${token.header}")
     private String header;
-
     // 令牌秘钥
     @Value("${token.secret}")
     private String secret;
-
     // 令牌有效期（默认30分钟）
     @Value("${token.expireTime}")
     private int expireTime;
-
     // 更长的令牌有效期
     @Value("${token.longerExpireTime}")
     private int longerExpireTime;
-
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-
-    protected static final long MILLIS_SECOND = 1000;
-
-    protected static final long MILLIS_MINUTE = 60 * MILLIS_SECOND;
-
-    private static final Long MILLIS_MINUTE_TEN = 20 * 60 * 1000L;
 
     /**
      * 创建令牌
@@ -82,7 +76,9 @@ public class JwtToken {
         SecretKey secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
         return Jwts.builder()
                 .setClaims(claims)
-                .signWith(secretKey, SignatureAlgorithm.HS512).compact();
+                .signWith(secretKey, SignatureAlgorithm.HS512)
+                .setExpiration(new Date(System.currentTimeMillis() + expireTime * MILLIS_MINUTE))
+                .compact();
     }
 
     /**
@@ -90,12 +86,17 @@ public class JwtToken {
      *
      * @param loginUser 登录信息
      */
-    public void refreshToken(LoginUser loginUser) {
+    public void refreshToken(LoginUser loginUser, boolean isNew) {
         loginUser.setLoginTime(System.currentTimeMillis());
-        loginUser.setExpireTime(loginUser.getLoginTime() + expireTime * MILLIS_MINUTE);
+        long expireTimeMillis = isNew? loginUser.getLoginTime() + expireTime * MILLIS_MINUTE : loginUser.getLoginTime() + longerExpireTime * MILLIS_MINUTE;
+        loginUser.setExpireTime(expireTimeMillis);
         // 根据uuid将loginUser缓存
         String userKey = getTokenKey(loginUser.getToken());
         redisTemplate.opsForValue().set(userKey, loginUser, expireTime, TimeUnit.MINUTES);
+    }
+
+    public void refreshToken(LoginUser loginUser) {
+        refreshToken(loginUser, true);
     }
 
     /**
@@ -138,6 +139,16 @@ public class JwtToken {
     }
 
     /**
+     * 删除用户身份信息
+     */
+    public void delLoginUser(String token) {
+        if (StringUtils.isNotEmpty(token)) {
+            String userKey = getTokenKey(token);
+            redisTemplate.delete(userKey);
+        }
+    }
+
+    /**
      * 从令牌中获取数据声明
      *
      * @param token 令牌
@@ -161,7 +172,7 @@ public class JwtToken {
         long expireTime = loginUser.getExpireTime();
         long currentTime = System.currentTimeMillis();
         if (expireTime - currentTime <= MILLIS_MINUTE_TEN) {
-            refreshToken(loginUser);
+            refreshToken(loginUser, false);
         }
     }
 

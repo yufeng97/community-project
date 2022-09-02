@@ -85,4 +85,10 @@ public class MapperTests {
         }
     }
 
+    @Test
+    public void postTest2() {
+        boolean exist = discussPostMapper.checkPostExistById(285);
+        System.out.println(exist);
+    }
+
 }
