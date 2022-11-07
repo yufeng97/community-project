@@ -10,4 +10,6 @@ import lombok.ToString;
 public class CommentDto {
     private Integer postId;
     private String content;
+    private Integer commentId;
+    private Integer targetId;
 }

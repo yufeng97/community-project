@@ -31,13 +31,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/register", "/login");
 
         registry.addInterceptor(loginTicketInterceptor)
-                .excludePathPatterns("/**/*.css", "/**/*.js", "**/*.png", "/**/*.jpg", "**/*.jpeg");
-
-        registry.addInterceptor(loginRequiredInterceptor)
-                .excludePathPatterns("/**/*.css", "/**/*.js", "**/*.png", "/**/*.jpg", "**/*.jpeg");
+                .excludePathPatterns("/**/*.css", "/**/*.js", "**/*.png", "/**/*.jpg", "**/*.jpeg")
+                .addPathPatterns("/login");
 
         registry.addInterceptor(tokenInterceptor)
                 .excludePathPatterns("/**/*.css", "/**/*.js", "**/*.png", "/**/*.jpg", "**/*.jpeg")
-                .excludePathPatterns("/login", "/register", "/captcha", "/logout", "/user/*");
+                .excludePathPatterns("/login", "/register", "/captcha", "/logout");
+
+        registry.addInterceptor(loginRequiredInterceptor)
+                .excludePathPatterns("/**/*.css", "/**/*.js", "**/*.png", "/**/*.jpg", "**/*.jpeg")
+                .excludePathPatterns("/login", "/register", "/captcha", "/logout");
     }
 }

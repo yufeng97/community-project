@@ -105,6 +105,7 @@ public class GlobalExceptionHandler {
         String message = e.getMessage();
         return CommonResult.fail(HttpServletResponse.SC_BAD_REQUEST, message);
     }
+
 //    /**
 //     * 业务异常
 //     */

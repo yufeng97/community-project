@@ -18,8 +18,6 @@ public interface CommentMapper {
 
     int selectCommentCountByEntity(int entityType, int entityId);
 
-    int insertComment(Comment comment);
-
     List<PostCommentVo> selectPostCommentsById(int entityId);
 
     CommentVo selectCommentById(int id);
@@ -29,27 +27,33 @@ public interface CommentMapper {
     List<CommentVo> selectCommentListByPostId(int postId, int offset, int limit, int replyLimit);
 
 
-    List<ReplyVo> selectReplyListByCommentId(int commentId);
+    List<CommentVo> selectReplyListByCommentId(int commentId);
 
-    @Select("select count(*) from comment where post_id = #{postId} and status != 2")
+    /**
+     * 查询一级评论(父评论)的数量
+     */
+    @Select("select count(*) from comment_old where post_id = #{postId} and status != 2 and parent_id is null")
     long selectCommentCountByPostId(int postId);
 
+    /**
+     * 查询回复(子评论)的数量
+     */
     @Select("select count(*) from reply where comment_id=#{commentId} and status != 2")
     long selectReplyCountByCommentId(int commentId);
 
     @Select("select exists(select 1 from comment where id=#{id} and status != 2)")
     boolean checkCommentExistById(int id);
 
-    @Insert("insert into comment(user_id, post_id, content, reply_count, status, create_time, update_time) " +
-            "values (#{userId}, #{postId}, #{content}, 0, 0, now(), now())")
+    @Insert("insert into comment_old(user_id, post_id, parent_id, target_id, content, entity_type, entity_id, reply_count, status, create_time, update_time) " +
+            "values (#{userId}, #{postId}, #{parentId}, #{targetId}, #{content}, #{entityType}, #{entityId}, 0, 0, now(), now())")
     @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
-    int insertComment(Comment2 comment);
+    int insertComment(Comment comment);
 
     @Insert("insert into reply(comment_id, from_id, to_id, content, status, create_time, update_time) " +
             "values (#{commentId}, #{fromId}, #{toId}, #{content}, 0, now(), now())")
     @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
     int insertReply(Reply reply);
 
-    @Update("update comment set reply_count=#{replyCount} where id=#{id}")
+    @Update("update comment_old set reply_count=#{replyCount} where id=#{id}")
     int updateReplyCount(int id, long replyCount);
 }

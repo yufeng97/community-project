@@ -5,6 +5,7 @@ import com.nowcoder.community.constant.Constants;
 import com.nowcoder.community.util.Base64;
 import com.nowcoder.community.util.CommonResult;
 import com.nowcoder.community.util.CommunityUtil;
+import com.nowcoder.community.util.RedisKeyUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -40,7 +41,7 @@ public class CaptchaController {
 
         // 验证码的归属
         String captchaOwner = CommunityUtil.generateSimpleUUID();
-        String verifyKey = Constants.CAPTCHA_CODE_KEY + captchaOwner;
+        String verifyKey = RedisKeyUtil.getCaptchaKey(captchaOwner);
         redisTemplate.opsForValue().set(verifyKey, text, 2, TimeUnit.MINUTES);
 
         FastByteArrayOutputStream os = new FastByteArrayOutputStream();

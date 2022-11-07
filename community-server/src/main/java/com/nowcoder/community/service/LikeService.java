@@ -12,7 +12,16 @@ import org.springframework.stereotype.Service;
 public class LikeService {
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
+
+    public void postLike(int userId, int postId, boolean status) {
+        String postLikeKey = RedisKeyUtil.getPostLikeKey(postId);
+
+    }
+
+    public void commentLike(int userId, int commentId, boolean status) {
+
+    }
 
     public void like(int userId, int entityType, int entityId, int entityUserId) {
 //        String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType, entityId);

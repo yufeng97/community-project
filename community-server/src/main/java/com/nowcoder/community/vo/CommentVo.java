@@ -14,6 +14,8 @@ public class CommentVo {
     int likesCount;
     boolean liked;
     User author;
+    User target;
     int replyCount;
-    List<ReplyVo> replies;
+//    List<ReplyVo> replies;
+    List<CommentVo> replies;
 }

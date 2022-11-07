@@ -75,11 +75,9 @@ public class DiscussPostService {
 
     public PostVo queryPostById(int id) {
         PostVo postVo = discussPostMapper.selectPostById(id);
-        System.out.println(postVo);
-        System.out.println(postVo.getUserId());
+
         User user = userMapper.selectById(postVo.getUserId());
         postVo.setAuthor(user);
-        System.out.println(postVo);
         return postVo;
     }
 

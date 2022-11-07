@@ -4,7 +4,16 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.nowcoder.community.mapper.CommentMapper">
 
-    <resultMap id="replyMap" type="com.nowcoder.community.vo.ReplyVo">
+<!--    <resultMap id="replyMap" type="com.nowcoder.community.vo.ReplyVo">-->
+<!--        <id column="reply_id" property="id"/>-->
+<!--        <result column="reply_content" property="content"/>-->
+<!--        <result column="reply_create_time" property="createTime"/>-->
+<!--        <association property="author" resultMap="com.nowcoder.community.mapper.UserMapper.userMap"-->
+<!--                     columnPrefix="reply_author_"/>-->
+<!--        <association property="target" resultMap="com.nowcoder.community.mapper.UserMapper.userMap"-->
+<!--                     columnPrefix="reply_target_"/>-->
+<!--    </resultMap>-->
+    <resultMap id="replyMap" type="com.nowcoder.community.vo.CommentVo">
         <id column="reply_id" property="id"/>
         <result column="reply_content" property="content"/>
         <result column="reply_create_time" property="createTime"/>
@@ -21,17 +30,16 @@
         <result property="replyCount" column="reply_count"/>
         <association property="author" resultMap="com.nowcoder.community.mapper.UserMapper.userMap"
                      columnPrefix="comment_author_"/>
-        <collection property="replies" ofType="com.nowcoder.community.vo.ReplyVo" resultMap="replyMap"/>
+        <!--<collection property="replies" ofType="com.nowcoder.community.vo.ReplyVo" resultMap="replyMap"/>-->
+        <collection property="replies" ofType="com.nowcoder.community.vo.CommentVo" resultMap="replyMap"/>
     </resultMap>
 
     <sql id="insertFields">
-        user_id
-        , entity_type, entity_id, target_id, content, status, create_time
+        user_id, entity_type, entity_id, target_id, content, status, create_time
     </sql>
 
     <sql id="selectFields">
-        id,
-        <include refid="insertFields"/>
+        id, <include refid="insertFields"/>
     </sql>
 
     <select id="selectCommentsByEntity" resultType="com.nowcoder.community.entity.Comment">
@@ -108,42 +116,73 @@
 <!--        values(#{userId}, #{entityType}, #{entityId}, #{targetId}, #{content}, #{status}, #{createTime} )-->
 <!--    </insert>-->
 
+<!--    <select id="selectCommentListByPostId" resultMap="commentMap">-->
+<!--        select `comment`.id          as comment_id-->
+<!--             , `comment`.create_time as comment_create_time-->
+<!--             , `comment`.content     as comment_content-->
+<!--             , `comment`.user_id     as comment_author_id-->
+<!--             , `comment`.reply_count as reply_count-->
+<!--             , reply.id              as reply_id-->
+<!--             , reply.content         as reply_content-->
+<!--             , reply.create_time     as reply_create_time-->
+<!--             , reply.from_id         as reply_author_id-->
+<!--             , reply.to_id           as reply_target_id-->
+<!--        from `comment`-->
+<!--                 left join reply on `comment`.id = reply.comment_id-->
+<!--        where `comment`.id in (select id-->
+<!--                               from (select id-->
+<!--                                     from `comment`-->
+<!--                                     where post_id = #{postId}-->
+<!--                                       and `comment`.`status` = 0-->
+<!--                                     order by id asc-->
+<!--                                         limit #{offset}, #{limit}) as comment_id_list)-->
+<!--          and (select count(*)-->
+<!--               from reply r-->
+<!--               where r.comment_id = reply.comment_id-->
+<!--                 and r.status = 0-->
+<!--                 and r.id > reply.id) &lt; #{replyLimit}-->
+<!--        order by comment.id asc, reply.id asc-->
+<!--    </select>-->
+
+
     <select id="selectCommentListByPostId" resultMap="commentMap">
         select `comment`.id          as comment_id
-             , `comment`.create_time as comment_create_time
-             , `comment`.content     as comment_content
-             , `comment`.user_id     as comment_author_id
-             , `comment`.reply_count as reply_count
-             , reply.id              as reply_id
-             , reply.content         as reply_content
-             , reply.create_time     as reply_create_time
-             , reply.from_id         as reply_author_id
-             , reply.to_id           as reply_target_id
-        from `comment`
-                 left join reply on `comment`.id = reply.comment_id
+            , `comment`.create_time as comment_create_time
+            , `comment`.content     as comment_content
+            , `comment`.user_id     as comment_author_id
+            , `comment`.reply_count as reply_count
+            , reply.id              as reply_id
+            , reply.content         as reply_content
+            , reply.create_time     as reply_create_time
+            , reply.user_id         as reply_author_id
+            , reply.target_id       as reply_target_id
+        from `comment_old` `comment`
+            left join comment_old reply on `comment`.id = reply.parent_id
         where `comment`.id in (select id
                                from (select id
-                                     from `comment`
+                                     from `comment_old` `comment`
                                      where post_id = #{postId}
-                                       and `comment`.`status` = 0
+                                     and `comment`.`status` = 0
+                                     and parent_id is null
                                      order by id asc
-                                         limit #{offset}, #{limit}) as comment_id_list)
-          and (select count(*)
-               from reply r
-               where r.comment_id = reply.comment_id
-                 and r.status = 0
-                 and r.id > reply.id) &lt; #{replyLimit}
+                                     limit #{offset}, #{limit}) as comment_id_list)
+          and ( select count(*)
+                from comment_old r
+                where r.parent_id=reply.parent_id
+                and r.`status`=0
+                and r.id &lt; reply.id) &lt; #{replyLimit}
         order by comment.id asc, reply.id asc
     </select>
+
 
     <select id="selectReplyListByCommentId" resultMap="replyMap">
         select reply.id          as reply_id
              , reply.content     as reply_content
              , reply.create_time as reply_create_time
-             , reply.from_id     as reply_author_id
-             , reply.to_id       as reply_target_id
-        from reply
-        where comment_id = #{commentId}
+             , reply.user_id     as reply_author_id
+             , reply.target_id   as reply_target_id
+        from comment_old as reply
+        where parent_id = #{commentId}
     </select>
 
 

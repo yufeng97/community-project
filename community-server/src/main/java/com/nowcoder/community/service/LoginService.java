@@ -1,6 +1,7 @@
 package com.nowcoder.community.service;
 
 import com.nowcoder.community.component.JwtToken;
+import com.nowcoder.community.component.UserContext;
 import com.nowcoder.community.constant.Constants;
 import com.nowcoder.community.dto.LoginDto;
 import com.nowcoder.community.entity.LoginTicket;
@@ -18,7 +19,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
 import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -28,6 +32,9 @@ public class LoginService {
     private RedisTemplate<String, Object> redisTemplate;
 
     @Autowired
+    private TokenService tokenService;
+
+    @Autowired
     private JwtToken jwtToken;
 
     @Autowired
@@ -35,7 +42,9 @@ public class LoginService {
 
     private static final int TICKET_VALID = 1;
     private static final int TICKET_INVALID = 0;
-    private static final long EXPIRED_SECONDS = 10 * 60 * 1000L;
+
+    private static final long EXPIRED_MINUTES = 30L;
+    private static final long EXPIRED_SECONDS = TimeUnit.MINUTES.toMillis(EXPIRED_MINUTES);
 
     public String login(LoginDto loginDto) {
         log.info(String.valueOf(loginDto));
@@ -63,17 +72,18 @@ public class LoginService {
         }
 
         // 生成登陆凭证
-        String token = jwtToken.createToken(user);
+//        String token = jwtToken.createToken(user);
+        LoginUser loginUser = tokenService.createLoginUser(user);
+        String token = tokenService.createToken(loginUser);
         recordLoginTicket(token, user.getId());
 
         return token;
     }
 
     public boolean logout(HttpServletRequest request) {
-        LoginUser loginUser = jwtToken.getLoginUser(request);
-        log.info("logout user: " + loginUser);
-        if (loginUser != null) {
-            jwtToken.delLoginUser(loginUser.getToken());
+        String token = request.getHeader("Authorization");
+        if (StringUtils.isNotBlank(token)) {
+            tokenService.delLoginUser(token);
             return true;
         }
         return false;
@@ -81,9 +91,9 @@ public class LoginService {
 
     private void validateCaptcha(String code, String captchaOwner) {
         log.info(code + " " + captchaOwner);
-        String verifyKey = Constants.CAPTCHA_CODE_KEY + captchaOwner;
+        String verifyKey = RedisKeyUtil.getCaptchaKey(captchaOwner);
         String captcha = (String) redisTemplate.opsForValue().get(verifyKey);
-//        redisTemplate.delete(verifyKey);
+        redisTemplate.delete(verifyKey);
         if (captcha == null) {
             throw new CaptchaExpireException();
         }

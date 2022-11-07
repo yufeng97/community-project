@@ -19,5 +19,9 @@ public class UnAuthorizationException extends BaseException {
     public UnAuthorizationException(String message) {
         this(null, message);
     }
+
+    public UnAuthorizationException() {
+        this("请登录");
+    }
 }
 

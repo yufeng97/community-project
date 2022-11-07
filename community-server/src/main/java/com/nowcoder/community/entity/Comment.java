@@ -11,6 +11,8 @@ public class Comment {
     private int entityType;
     private int entityId;
     private int targetId;
+    private int postId;
+    private Integer parentId;
     private String content;
     private int status;
     private Date createTime;

@@ -46,6 +46,7 @@ public class MapperTests {
         PostVo postVo = discussPostMapper.selectPostById(274);
 //        PostInfo postVo = discussPostMapper.selectPostById(274);
         System.out.println(postVo);
+        System.out.println("JSONObject.toJSONString(postVo) = " + JSONObject.toJSONString(postVo));
     }
 
     @Test
