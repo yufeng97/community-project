@@ -4,12 +4,13 @@
   <!-- 单条评论 -->
   <comment-item
     v-for="(comment, i) in comments"
-    :id="`comment-${i}`"
+    :id="comment.id"
     :key="`comment-${i}`"
     :ref="`comment-${i}`"
     :level="i + 1"
     :user="comment.author"
     :comment="comment"
+    :post-id="postId"
   >
     <!-- 单条评论下的回复列表 -->
     <template #subList="{ parentId }">
@@ -17,6 +18,7 @@
         <reply-list
           :id="parentId"
           :comment-id="comment.id"
+          :post-id="postId"
           :replies="comment.replies"
           :parent="comment"
         />
@@ -29,7 +31,7 @@
 import { getPostComments, getCommentReplies } from "@/api/comment";
 import { Comment } from "@/types";
 import { onMounted, PropType, reactive, ref } from "vue";
-
+import { commentLike } from "@/api/like";
 import CommentItem from "./CommentItem.vue";
 import ReplyList from "./ReplyList.vue";
 
@@ -55,7 +57,6 @@ const handleCurrentChange = (
 ) => {
   getCommentReply(commentId, currentPage, index);
 };
-
 
 const addCommentClick = () => {
   isShowInput.value = !isShowInput.value;

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nowcoder.community.mapper.LikeMapper">
+
+<!--    <resultMap id="commentLikeRecordMap" type="commentLikeRecord">-->
+<!--        <id column="id" property="id"/>-->
+<!--        <result column="status" property="status" />-->
+<!--    </resultMap>-->
+
+    <select id="selectPostLikeStatusByListId" resultType="com.nowcoder.community.entity.PostLikeRecord">
+        select post_id, status from post_like_record
+        <where>
+            <if test="ids != null">
+                post_id in
+                <foreach collection="ids" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            and user_id=#{userId}
+        </where>
+    </select>
+
+    <select id="selectCommentLikeStatusByListId" resultType="com.nowcoder.community.entity.CommentLikeRecord">
+        select comment_id, status from comment_like_record
+        <where>
+            <if test="ids != null">
+                comment_id in
+                <foreach collection="ids" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            and user_id=#{userId}
+        </where>
+    </select>
+
+</mapper>
