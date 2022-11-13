@@ -10,21 +10,9 @@ import java.util.List;
 @Mapper
 public interface DiscussPostMapper {
 
-    List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit);
-
-    List<DiscussPost> selectPostList(int userId);
-
     // @Param注解用于给参数取别名
     // 如果只有一个参数，并且在<if>里使用，则必须加别名.
     int selectDiscussPostRows(@Param("userId") int userId);
-
-    int insertDiscussPost(DiscussPost post);
-
-    @Select("select * from discuss_post where id=#{id}")
-    DiscussPost selectDiscussPostById(int id);
-
-    @Update("update discuss_post set comment_count = #{commentCount} where id = #{id}")
-    int updateCommentCount(int id, long commentCount);
 
     List<PostInfo> selectPostInfoList(int userId);
 
@@ -33,4 +21,14 @@ public interface DiscussPostMapper {
 
     @Select("select exists(select 1 from discuss_post where id=#{id} and status!=2)")
     boolean checkPostExistById(int id);
+
+//    @Insert("insert into discuss_post (user_id, title, content, type, status, create_time, comment_count, score)" +
+//            "   values (#{userId}, #{title}, #{content}, #{type}, #{status}, #{createTime}, #{commentCount}, #{score})")
+    int insertDiscussPost(DiscussPost post);
+
+    @Update("update discuss_post set comment_count = #{commentCount} where id = #{id}")
+    int updateCommentCount(int id, long commentCount);
+
+    @Update("update discuss_post set like_count=#{count} where id=#{id}")
+    int updatePostLikeCount(int id, long count);
 }

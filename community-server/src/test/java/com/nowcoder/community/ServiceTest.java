@@ -21,7 +21,7 @@ public class ServiceTest {
 
     @Test
     public void commentTest1() {
-        List<CommentVo> commentVos = commentService.queryPostCommentList(232, 0, 10, 3);
+        List<CommentVo> commentVos = commentService.queryPostCommentList(274, 0, 10, 3);
         System.out.println(JSONObject.toJSONString(commentVos, SerializerFeature.DisableCircularReferenceDetect));
         for (CommentVo commentVo : commentVos) {
             System.out.println(JSONObject.toJSONString(commentVo, SerializerFeature.DisableCircularReferenceDetect));

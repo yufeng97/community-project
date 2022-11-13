@@ -3,7 +3,6 @@ package com.nowcoder.community.mapper;
 import com.nowcoder.community.dto.CommentDto;
 import com.nowcoder.community.dto.ReplyDto;
 import com.nowcoder.community.entity.Comment;
-import com.nowcoder.community.entity.Comment2;
 import com.nowcoder.community.entity.Reply;
 import com.nowcoder.community.vo.CommentVo;
 import com.nowcoder.community.vo.PostCommentVo;
@@ -56,4 +55,7 @@ public interface CommentMapper {
 
     @Update("update comment_old set reply_count=#{replyCount} where id=#{id}")
     int updateReplyCount(int id, long replyCount);
+
+    @Update("update comment_old set like_count=#{likeCount} where id=#{id}")
+    int updateCommentLikeCount(int id, long likeCount);
 }

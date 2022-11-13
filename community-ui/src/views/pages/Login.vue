@@ -18,9 +18,9 @@
       label-width="90px"
       class="nk-loginForm"
     >
-      <el-form-item label="账号：" prop="accout">
+      <el-form-item label="账号：" prop="account">
         <el-input
-          v-model="form.accout"
+          v-model="form.account"
           autocomplete="off"
           placeholder=" "
         ></el-input>
@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { onBeforeMount, reactive, ref } from "vue";
 import type { ElForm } from "element-plus";
 import { getCodeImg } from "@/api/login";
 import userStore from "@/store/user";
@@ -98,13 +98,13 @@ const loginForm = ref<InstanceType<typeof ElForm>>();
 
 const store = userStore();
 
-const accout: string = "";
+const account: string = "";
 const pass: string = "";
 const code: string = "";
 const uuid: string = "";
 const rememberMe: boolean = false;
 const form = reactive({
-  accout,
+  account,
   pass,
   code,
   uuid,
@@ -120,7 +120,7 @@ const errorMessage = reactive({
   errorCode,
 });
 
-const validateAccout = (rule: any, value: string, callback: any) => {
+const validateAccount = (rule: any, value: string, callback: any) => {
   if (value === "") {
     callback(new Error("请输入您的账号！"));
   } else {
@@ -129,7 +129,7 @@ const validateAccout = (rule: any, value: string, callback: any) => {
     //   if (!res.data) callback(new Error("用户不存在！"));
     //   else callback();
     // });
-    callback()
+    callback();
   }
 };
 const validatePassword = (rule: any, value: string, callback: any) => {
@@ -147,7 +147,7 @@ const validateCode = (rule: any, value: string, callback: any) => {
   }
 };
 const rules = reactive({
-  accout: [{ validator: validateAccout, trigger: "blur" }],
+  account: [{ validator: validateAccount, trigger: "blur" }],
   pass: [{ validator: validatePassword, trigger: "blur" }],
   code: [{ validator: validateCode, trigger: "blur" }],
 });
@@ -157,7 +157,7 @@ const submitForm = () => {
   loginForm.value?.validate((valid) => {
     if (valid) {
       if (form.rememberMe) {
-        Cookies.set("username", form.accout, 30);
+        Cookies.set("username", form.account, 30);
         Cookies.set("password", encrypt(form.pass), 30);
         Cookies.set("rememberMe", form.rememberMe, 30);
       } else {
@@ -168,22 +168,30 @@ const submitForm = () => {
 
       store
         .login({
-          username: form.accout,
+          username: form.account,
           password: form.pass,
           code: form.code,
           uuid: form.uuid,
         })
-        .then(() => {
+        .then((res: any) => {
+          if (res.code !== 200) {
+            ElMessage({
+              message: "验证码错误",
+              type: "error",
+              duration: 2000,
+            });
+            return;
+          }
           ElMessage({
-            message: "登录成功。",
+            message: "登录成功",
             type: "success",
             duration: 2000,
           });
-
           router.push("/");
         })
         .catch((error) => {
           const msg = error.message;
+          console.log(error);
           if (msg === "验证码错误") {
             errorMessage.errorCode = "验证码错误!";
             errorMessage.errorPassword = "";
@@ -216,15 +224,16 @@ const getCookie = () => {
   const username = Cookies.get("username");
   const password = Cookies.get("password");
   const rememberMe = Cookies.get("rememberMe");
-  console.log(username, password, rememberMe);
-  form.accout = username || "";
+  form.account = username || "";
   form.pass = decrypt(password) || "";
   form.rememberMe = Boolean(rememberMe) || false;
 };
 
 //初始化
-getCaptcha();
-getCookie();
+onBeforeMount(() => {
+  getCaptcha();
+  getCookie();
+});
 </script>
 
 <style scoped>

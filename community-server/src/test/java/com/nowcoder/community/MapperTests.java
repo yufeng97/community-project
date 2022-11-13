@@ -1,9 +1,12 @@
 package com.nowcoder.community;
 
 import com.alibaba.fastjson.JSONObject;
+import com.nowcoder.community.entity.CommentLikeRecord;
+import com.nowcoder.community.entity.PostLikeRecord;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.mapper.CommentMapper;
 import com.nowcoder.community.mapper.DiscussPostMapper;
+import com.nowcoder.community.mapper.LikeMapper;
 import com.nowcoder.community.mapper.UserMapper;
 import com.nowcoder.community.vo.CommentVo;
 import com.nowcoder.community.vo.PostCommentVo;
@@ -32,6 +35,9 @@ public class MapperTests {
     @Autowired
     private DiscussPostMapper discussPostMapper;
 
+    @Autowired
+    private LikeMapper likeMapper;
+
     @Test
     public void userTest1() {
         Map<Integer, User> userMap = userMapper.selectByListId(Arrays.asList(101, 102, 103));
@@ -51,11 +57,6 @@ public class MapperTests {
 
     @Test
     public void commentTest1() {
-//        CommentVo commentVo = commentMapper.selectCommentById(64);
-//        System.out.println(commentVo);
-//        CommentTest commentTest = commentMapper.selectCommentTest(64);
-//        System.out.println(commentTest);
-
         List<CommentVo> commentVos = commentMapper.selectCommentListByPostId(274, 0, 10, 5);
         for (CommentVo vo : commentVos) {
             System.out.println(vo);
@@ -76,6 +77,7 @@ public class MapperTests {
         System.out.println(userIds);
 
         Map<Integer, User> userMap = userMapper.selectByListId(userIds);
+        System.out.println(userMap);
 
         System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++");
         for (PostInfo postInfo : postInfos) {
@@ -90,6 +92,24 @@ public class MapperTests {
     public void postTest2() {
         boolean exist = discussPostMapper.checkPostExistById(285);
         System.out.println(exist);
+    }
+
+    @Test
+    public void likeTest2() {
+        Map<Integer, PostLikeRecord> map = likeMapper.selectPostLikeStatusByListId(Arrays.asList(273, 274, 275), 111);
+        System.out.println(map);
+    }
+
+    @Test
+    public void likeTest1() {
+        Map<Integer, CommentLikeRecord> map = likeMapper.selectCommentLikeStatusByListId(Arrays.asList(104, 105, 106, 111), 111);
+        System.out.println(map);
+
+        boolean status = likeMapper.selectCommentLikeStatus(113, 111);
+        System.out.println(status);
+        likeMapper.updateCommentLikeRecordStatus(113, 111, !status);
+        status = likeMapper.selectCommentLikeStatus(113, 111);
+        System.out.println(status);
     }
 
 }

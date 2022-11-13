@@ -1,35 +1,42 @@
 <template>
   <!-- 文章卡片 -->
   <div class="nk-home-card">
-    <router-link :to="``">
-      <el-avatar
-        :size="50"
-        :src="postInfo.author.avatar"
-        src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"
-      />
-    </router-link>
+    <div class="user-info-box">
+      <router-link :to="``">
+        <el-avatar :size="40" :src="postInfo.author.avatar" />
+      </router-link>
 
-    <div class="meta-box">
-      <router-link :to="`/post/${postInfo.id}`"
-        ><span class="post-title">{{ postInfo.title }}</span></router-link
-      >
-
-      <div class="post-meta">
-        <span>
-          <router-link :to="`/user/${postInfo.author.id}`"
-            ><span>{{ postInfo.author.username }}</span>
+      <div class="user-time-box">
+        <span
+          ><router-link :to="`/user/${postInfo.author.id}`"
+            >{{ postInfo.author.username }}
           </router-link>
-          &nbsp;&nbsp;发布于&nbsp;&nbsp;
-          <time>{{ postInfo.createTime }}</time>
         </span>
-        <div>
-          <span>
-            点赞&nbsp;&nbsp;{{ Math.floor(postInfo.score) }}&nbsp;&nbsp;
-          </span>
-          |
-          <span>&nbsp;&nbsp;回帖&nbsp;&nbsp; {{ postInfo.commentCount }}</span>
-        </div>
+        <time>{{ formatTime(postInfo.createTime) }}</time>
       </div>
+    </div>
+
+    <div class="post-info-box">
+      <div class="post-title">
+        <router-link :to="`/post/${postInfo.id}`">
+          <span>{{ postInfo.title }}</span>
+        </router-link>
+      </div>
+      <div class="post-brief">
+        <router-link :to="`/post/${postInfo.id}`">{{
+          postInfo.brief
+        }}</router-link>
+      </div>
+    </div>
+
+    <div class="post-action-box">
+      <like-button
+        :id="postInfo.id"
+        :liked="postInfo.liked"
+        :likes-count="postInfo.likeCount"
+        :size="'20px'"
+      />
+      <reply-button :reply-count="postInfo.commentCount" :size="'20px'" />
     </div>
   </div>
 </template>
@@ -37,7 +44,10 @@
 <script setup lang="ts">
 import { PropType } from "vue";
 import type { PostInfo } from "@/types";
-import { dataFormat } from "@/utils/dataFormat";
+import { formatTime } from "@/utils/dataFormat";
+import LikeButton from "@/components/LikeButton.vue";
+import ReplyButton from "@/components/ReplyButton.vue";
+
 defineProps({
   postInfo: {
     type: Object as PropType<PostInfo>,
@@ -47,42 +57,43 @@ defineProps({
 </script>
 
 <style lang="scss" scoped>
-a:link {
+a {
   text-decoration: none;
+  color: black;
 }
-a:visited {
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: none;
-  color: #000000;
-}
-a:active {
-  text-decoration: none;
-  color: #000000;
-}
-.nk-avatar {
-  text-align: center;
-  margin-top: 25px;
-}
-/* .nk-home-card {
-    border-bottom: 1px solid var(--el-border-color-base);
-} */
 
 .nk-home-card {
   display: flex;
-  justify-content: start;
-  align-items: center;
-
-  .meta-box {
-    flex: 1 1 auto;
-    padding-left: 6px;
-    .post-meta {
+  flex-direction: column;
+  .user-info-box {
+    display: flex;
+    .user-time-box {
+      margin: 2px;
       display: flex;
+      flex-direction: column;
       justify-content: space-between;
-      font-size: var(--el-font-size-extra-small);
-      color: rgb(98, 100, 102);
+      time {
+        font-size: var(--el-font-size-extra-small);
+        color: rgb(98, 100, 102);
+      }
     }
+  }
+  .post-title {
+    font-size: larger;
+    font-weight: bold;
+    margin: 1ch 0;
+  }
+  .post-brief {
+    font-size: medium;
+    margin: 1ch 0;
+  }
+  .post-action-box {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-content: flex-start;
+    justify-content: space-between;
+    max-width: 7.04rem;
   }
 }
 </style>

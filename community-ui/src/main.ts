@@ -3,6 +3,7 @@ import App from '@/App.vue'
 import { router } from '@/router'
 import ElementPlus from 'element-plus'
 import { createPinia, PiniaPluginContext } from "pinia"
+import { setStorage, getStorage } from './store/utils'
 import 'element-plus/dist/index.css'
 import '@/assets/css/global.css'
 
@@ -10,15 +11,15 @@ import '@/assets/css/global.css'
 // import 'undraw-ui/dist/style.css'
 
 
-// 数据存储本地
-const setStorage = (key: string, value: any) => {
-    localStorage.setItem(key, JSON.stringify(value))
-}
-// 获取本地数据
-const getStorage = (key: string) => {
-    const data = localStorage.getItem(key)
-    return data ? JSON.parse(data) : {};
-}
+// // 数据存储本地
+// const setStorage = (key: string, value: any) => {
+//     localStorage.setItem(key, JSON.stringify(value))
+// }
+// // 获取本地数据
+// const getStorage = (key: string) => {
+//     const data = localStorage.getItem(key)
+//     return data ? JSON.parse(data) : {};
+// }
 
 const piniaPlugin = (context: PiniaPluginContext) => {
     const { store } = context;

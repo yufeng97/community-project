@@ -68,9 +68,9 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes,
 })
-// router.beforeEach((to, from, next) => {
-//     // console.log(to, from);
-//     next();
-// })
+router.beforeEach((to, from, next) => {
+    console.log(to, from);
+    next();
+})
 
 export {router }

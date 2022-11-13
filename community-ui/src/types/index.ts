@@ -4,28 +4,18 @@ export interface User {
     type: number,
     avatar: string,
     createTime?: string,
-}
-
-
-export interface DiscussPost {
-    id: number | string,
-    userId: number,
-    title: string,
-    content: string,
-    type: number,
-    createTime: string,
-    commentCount: number,
-    score: number,
-    likeCount?: number,
+    isAuthor?: boolean,
 }
 
 export interface PostInfo {
     id: number | string,
     title: string,
+    brief: string,
     createTime: string,
     commentCount: number,
     score: number,
     author: User,
+    liked?: boolean,
     likeCount?: number,
     type?: number,
 }
@@ -51,8 +41,9 @@ export interface Comment {
     likesCount: number,
     liked: boolean,
     author: User,
+    target: User | null,
     replyCount: number,
-    replies: [Reply],
+    replies: [Comment],
 }
 
 

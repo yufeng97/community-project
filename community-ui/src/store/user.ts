@@ -1,8 +1,9 @@
-import { getToken, setToken, removeToken } from "@/utils/cookies";
+import { getToken, setToken, removeToken } from "@/utils/token";
 import { login, getInfo, logout } from "@/api/login";
 import { defineStore } from "pinia";
 import { LoginBody } from "@/types";
 import { ElMessage } from "element-plus";
+import { router } from "@/router";
 
 export default defineStore({
   id: "user",
@@ -28,6 +29,11 @@ export default defineStore({
     changeState() {
       this.isLogin = !this.isLogin;
     },
+    clearLoginStatus() {
+      this.isLogin = false;
+      this.setToken("");
+      removeToken();
+    },
     // setRoles(roles: never[]) {
     //     this.roles = roles
     // },
@@ -41,13 +47,19 @@ export default defineStore({
       return new Promise<void>((resolve, reject) => {
         login(body)
           .then((res) => {
-            this.changeState();
+            console.log(res);
+            if (res.code !== 200) {
+              resolve(res);
+              return;
+            }
+            this.isLogin = true;
             this.setToken(res.data);
             setToken(res.data);
             this.getInfo();
-            resolve();
+            resolve(res);
           })
           .catch((error) => {
+            console.log(error);
             reject(error);
           });
       });
@@ -64,7 +76,7 @@ export default defineStore({
                 : user.avatar;
             this.setName(user.userName);
             this.setAvatar(avatar);
-            resolve();
+            resolve(res);
           })
           .catch((error) => {
             reject(error);
@@ -81,7 +93,7 @@ export default defineStore({
               type: "success",
               duration: 2000,
             });
-            this.changeState();
+            this.isLogin = false;
             this.setToken("");
             removeToken();
             resolve();
@@ -89,6 +101,20 @@ export default defineStore({
           .catch((error) => {
             reject(error);
           });
+      });
+    },
+    loginRequired() {
+      return new Promise<void>((resolve, reject) => {
+        router.push("/login");
+        ElMessage({
+          message: "请登录您的账号",
+          type: "error",
+          duration: 2000,
+        });
+        this.isLogin = false;
+        this.setToken("");
+        removeToken();
+        resolve();
       });
     },
   },

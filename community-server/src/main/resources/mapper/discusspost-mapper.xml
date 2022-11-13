@@ -49,7 +49,7 @@
     </select>
 
     <select id="selectPostInfoList" resultType="com.nowcoder.community.vo.PostInfo">
-        select id, user_id, title, type, comment_count, score, like_count, create_time
+        select id, user_id, title, brief, type, comment_count, score, like_count, create_time
         from discuss_post
         <where>
             status != 2

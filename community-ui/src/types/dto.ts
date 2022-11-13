@@ -1,6 +1,8 @@
 export interface CommentDTO {
-    postId: string,
+    postId: string | number,
     content: string,
+    targetId?: string | number,
+    commentId?: string | number,
 }
 
 export interface ReplyDTO {

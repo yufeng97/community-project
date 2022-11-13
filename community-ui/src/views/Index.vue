@@ -7,16 +7,15 @@
     </el-header>
     <!-- 页面主内容 交给路由转发 -->
     <el-main>
-      <div class="nk-letter nk-main-repair">
-        <el-row>
-          <el-col :span="6"></el-col>
-          <el-col :span="12">
-            <router-view></router-view>
-          </el-col>
-          <el-col :span="6"></el-col>
-        </el-row>
+      <div class="grid">
+        <div class="fluid"></div>
+        <div class="fixed">
+          <router-view></router-view>
+        </div>
+        <div class="fluid"></div>
       </div>
     </el-main>
+
     <!-- 尾部 -->
     <el-footer height="179px">
       <nk-footer></nk-footer>
@@ -29,7 +28,22 @@ import NkFooter from "../components/NkFooter.vue";
 import NkHeader from "../components/NkHeader.vue";
 </script>
 
-<style>
+<style scoped>
+.grid {
+  display: -webkit-flex;
+  display: -moz-flex;
+  display: -o-flex;
+  display: -ms-flex;
+  display: flex;
+  padding-top: 60px;
+}
+.fluid {
+  flex: 1;
+}
+.fixed {
+  flex: 2;
+}
+
 .el-header {
   background-color: #343a40;
   color: var(--el-text-color-primary);
@@ -57,9 +71,8 @@ import NkHeader from "../components/NkHeader.vue";
   background-color: #eee;
   color: var(--el-text-color-primary);
   text-align: left;
-  line-height: 40px;
+  line-height: 20px;
   min-height: 761px;
 }
-/* body > .el-container {
-} */
+
 </style>

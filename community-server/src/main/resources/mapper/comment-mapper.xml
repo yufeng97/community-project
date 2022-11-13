@@ -17,6 +17,7 @@
         <id column="reply_id" property="id"/>
         <result column="reply_content" property="content"/>
         <result column="reply_create_time" property="createTime"/>
+        <result column="reply_like_count" property="likesCount" />
         <association property="author" resultMap="com.nowcoder.community.mapper.UserMapper.userMap"
                      columnPrefix="reply_author_"/>
         <association property="target" resultMap="com.nowcoder.community.mapper.UserMapper.userMap"
@@ -28,9 +29,9 @@
         <result property="content" column="comment_content"/>
         <result property="createTime" column="comment_create_time"/>
         <result property="replyCount" column="reply_count"/>
+        <result property="likesCount" column="comment_like_count"/>
         <association property="author" resultMap="com.nowcoder.community.mapper.UserMapper.userMap"
                      columnPrefix="comment_author_"/>
-        <!--<collection property="replies" ofType="com.nowcoder.community.vo.ReplyVo" resultMap="replyMap"/>-->
         <collection property="replies" ofType="com.nowcoder.community.vo.CommentVo" resultMap="replyMap"/>
     </resultMap>
 
@@ -110,12 +111,6 @@
         where `comment`.post_id = #{id}
     </select>
 
-
-<!--    <insert id="insertComment" parameterType="com.nowcoder.community.entity.Comment">-->
-<!--        insert into comment_old(<include refid="insertFields"/>)-->
-<!--        values(#{userId}, #{entityType}, #{entityId}, #{targetId}, #{content}, #{status}, #{createTime} )-->
-<!--    </insert>-->
-
 <!--    <select id="selectCommentListByPostId" resultMap="commentMap">-->
 <!--        select `comment`.id          as comment_id-->
 <!--             , `comment`.create_time as comment_create_time-->
@@ -151,11 +146,13 @@
             , `comment`.content     as comment_content
             , `comment`.user_id     as comment_author_id
             , `comment`.reply_count as reply_count
+            , `comment`.like_count as comment_like_count
             , reply.id              as reply_id
             , reply.content         as reply_content
             , reply.create_time     as reply_create_time
             , reply.user_id         as reply_author_id
             , reply.target_id       as reply_target_id
+            , reply.like_count      as reply_like_count
         from `comment_old` `comment`
             left join comment_old reply on `comment`.id = reply.parent_id
         where `comment`.id in (select id
@@ -184,46 +181,5 @@
         from comment_old as reply
         where parent_id = #{commentId}
     </select>
-
-
-    <!--    <select id="selectCommentListByPostId" resultMap="commentMap">-->
-    <!--        select `comment`.id as comment_id-->
-    <!--        , `comment`.create_time as comment_create_time-->
-    <!--        , `comment`.content as comment_content-->
-    <!--        , comment_author.id as comment_author_id-->
-    <!--        , comment_author.username as comment_author_username-->
-    <!--        , comment_author.email as comment_author_email-->
-    <!--        , comment_author.header_url as comment_author_header_url-->
-    <!--        , reply.id as reply_id-->
-    <!--        , reply.content as reply_content-->
-    <!--        , reply.create_time as reply_create_time-->
-    <!--        , reply_author.id as reply_author_id-->
-    <!--        , reply_author.username as reply_author_username-->
-    <!--        , reply_author.email as reply_author_email-->
-    <!--        , reply_author.header_url as reply_author_header_url-->
-    <!--        , reply_target.id as reply_target_id-->
-    <!--        , reply_target.username as reply_target_username-->
-    <!--        , reply_target.email as reply_target_email-->
-    <!--        , reply_target.header_url as reply_target_header_url-->
-    <!--        from `comment`-->
-    <!--        left join reply on `comment`.id=reply.comment_id-->
-    <!--        left join `user` comment_author on `comment`.user_id=comment_author.id-->
-    <!--        left join `user` reply_author on reply.from_id=reply_author.id-->
-    <!--        left join `user` reply_target on reply.to_id=reply_target.id-->
-    <!--        where `comment`.id in (-->
-    <!--        select id from (-->
-    <!--            select id from `comment`-->
-    <!--            where post_id = #{postId} and `comment`.`status` = 0-->
-    <!--            order by id asc-->
-    <!--            limit #{offset}, #{limit}-->
-    <!--            ) as comment_id_list-->
-    <!--        )-->
-    <!--        and (-->
-    <!--            select count(*) from reply r-->
-    <!--            where r.comment_id=reply.comment_id-->
-    <!--            and r.status=0 and r.id > reply.id-->
-    <!--        ) &lt; #{replyLimit}-->
-    <!--        order by comment.id asc, reply.id asc-->
-    <!--    </select>-->
 
 </mapper>

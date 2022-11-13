@@ -73,10 +73,6 @@ const { path } = useRoute();
 const store = userStore();
 const router = useRouter();
 
-// const state = reactive({
-//   circleUrl:
-//     'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png',
-// })
 
 console.log("path", path);
 // onMounted(() => {
@@ -94,14 +90,13 @@ watch(() => route.path, () => {
   activeIndex.value = route.path;
 })
 
-// const activeIndex = ref(window.location.hash.slice(1) || "/");
 const activeIndex = ref("/");
-
 const handleSelect = () => {};
 
 const formSearch = reactive({
   detail: undefined,
 });
+
 const onSubmit = () => {
   console.log("onSubmit");
 };

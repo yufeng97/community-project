@@ -1,12 +1,11 @@
 package com.nowcoder.community.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.nowcoder.community.annotation.LoginRequired;
 import com.nowcoder.community.component.UserContext;
 import com.nowcoder.community.dto.PostDto;
 import com.nowcoder.community.entity.DiscussPost;
 import com.nowcoder.community.entity.Pagination;
-import com.nowcoder.community.entity.User;
-import com.nowcoder.community.exception.UnAuthorizationException;
 import com.nowcoder.community.service.CommentService;
 import com.nowcoder.community.service.DiscussPostService;
 import com.nowcoder.community.service.LikeService;
@@ -46,12 +45,10 @@ public class DiscussPostController implements CommunityConstant {
     @Autowired
     private CommentService commentService;
 
+    @LoginRequired
     @PostMapping("")
     public CommonResult<Boolean> addDiscussPost(@RequestBody PostDto postDto, HttpServletResponse response) {
         LoginUser user = userContext.getUser();
-        if (user == null) {
-            throw new UnAuthorizationException("请登录");
-        }
 
         DiscussPost post = new DiscussPost();
         post.setTitle(postDto.getTitle());
@@ -93,13 +90,15 @@ public class DiscussPostController implements CommunityConstant {
     public CommonResult<PostVo> getDiscussPostById(@PathVariable("id") Integer postId) {
         PostVo postVo = discussPostService.queryPostById(postId);
 
-        // 点赞数量
-        long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, postId);
+//        // 点赞数量
+//        long likeCount = likeService.findEntityLikeCount(ENTITY_TYPE_POST, postId);
+//        postVo.setLikeCount(likeCount);
         // 点赞状态
-        boolean likeStatus = hostHolder.getUser() != null && likeService.findEntityLikeStatus(hostHolder.getUser().getId(), ENTITY_TYPE_POST, postId);
-        postVo.setLikeCount(likeCount);
-        postVo.setLiked(likeStatus);
-
+        LoginUser loginUser = userContext.getUser();
+        if (loginUser != null) {
+            boolean likeStatus = likeService.queryPostLikeStatus(postId, loginUser.getUserId());
+            postVo.setLiked(likeStatus);
+        }
         return CommonResult.success(postVo);
 //        List<CommentVo> commentVos = commentService.queryPostCommentList(postId, offset, limit, 5);
 

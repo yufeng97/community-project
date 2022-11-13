@@ -1,9 +1,10 @@
 import axios from "axios";
 import errorCode from "@/utils/errorCode";
-import { getToken } from "@/utils/cookies";
+// import { getToken } from "@/utils/cookies";
+import { getToken } from "@/utils/token";
 import { tansParams } from "@/utils/tansParams";
 import { ElMessage } from "element-plus";
-import {router} from "@/router";
+import { router } from "@/router";
 axios.defaults.headers.common["Content-Type"] =
   "application/json;charset=utf-8";
 
@@ -15,8 +16,6 @@ const service = axios.create({
   timeout: 1000,
 });
 
-
-
 // 添加请求拦截器
 service.interceptors.request.use(
   (config) => {
@@ -27,7 +26,8 @@ service.interceptors.request.use(
     }
 
     if (getToken()) {
-      config.headers["Authorization"] = "Bearer " + getToken();
+      // config.headers["Authorization"] = "Bearer " + getToken();
+      config.headers["Authorization"] = getToken();
     }
 
     //get请求映射params参数
@@ -50,9 +50,13 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (res) => {
     // 未设置状态码则默认成功状态
+
     const code: number = res.data.code || 200;
+    const status: number = res.status;
     // 获取错误信息
-    const msg: string = errorCode.get(code) || res.data.msg || errorCode.get(0);
+    const msg: string =
+      errorCode.get(code) || res.data.message || errorCode.get(0);
+
     // 二进制数据则直接返回
     if (
       res.request.responseType === "blob" ||
@@ -60,34 +64,35 @@ service.interceptors.response.use(
     ) {
       return res.data;
     }
-    if (code === 401) {
+    if (status === 401) {
       return Promise.reject("无效的会话，或者会话已过期，请重新登录。");
-    } else if (code === 500) {
+    } else if (status === 403) {
+      return Promise.reject("权限不足");
+    } else if (status === 500) {
       return Promise.reject(new Error(msg));
-    } else if (code !== 200) {
+    } else if (status !== 200) {
       return Promise.reject("error");
-    } else {
+    }
+
+    if (status === 200 || code === 200) {
       return res.data;
     }
   },
   (error) => {
-    console.log("axios config record error", error);
-    
+    console.log("response error", error);
     const status: number = error.response.status;
+    let { message } = error;
     if (status === 401) {
       ElMessage({
-        message: "登录过期",
+        message: "无效的会话，或者会话已过期，请重新登录。",
         type: "warning",
         duration: 2000,
       });
-      // sessionStorage.clear(); //清除缓存
-      // localStorage.clear(); //清除缓存
-      router.push("/login");
-      console.log("到这了吗");
+      sessionStorage.clear(); //清除缓存
+      localStorage.clear(); //清除缓存
       return Promise.reject("无效的会话，或者会话已过期，请重新登录。");
     }
-    console.log("err" + error);
-    let { message } = error;
+
     if (message == "Network Error") {
       message = "后端接口连接异常";
     } else if (message.includes("timeout")) {

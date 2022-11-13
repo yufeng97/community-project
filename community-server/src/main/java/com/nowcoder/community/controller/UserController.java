@@ -1,7 +1,7 @@
 package com.nowcoder.community.controller;
 
+import com.nowcoder.community.annotation.LoginRequired;
 import com.nowcoder.community.component.UserContext;
-import com.nowcoder.community.constant.HttpStatus;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommonResult;
@@ -22,12 +22,13 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @LoginRequired
     @GetMapping("")
     public CommonResult<LoginUser> getUserInfo() {
         LoginUser user = userContext.getUser();
-        if (user == null) {
-            return CommonResult.fail(HttpStatus.BAD_REQUEST, "Please login");
-        }
+//        if (user == null) {
+//            return CommonResult.fail(HttpStatus.BAD_REQUEST, "Please login");
+//        }
         return CommonResult.success(user);
     }
 

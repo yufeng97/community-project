@@ -9,7 +9,7 @@
     <el-tab-pane v-for="label in tabLabel" :label="label">
       <div v-for="item in postInfos">
         <nk-home-card :post-info="item" />
-        <el-divider />
+        <el-divider style="margin: 12px 0;"/>
       </div>
 
       <el-pagination

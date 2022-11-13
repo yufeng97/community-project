@@ -1,12 +1,13 @@
 <template>
   <comment-item
     v-for="(child, j) in replies"
-    :id="`${id}-${j}`"
+    :id="child.id"
     :key="`${id}-${j}`"
     :ref="`${id}-${j}`"
     :comment="child"
     :user="child.author"
     :parent="parent"
+    :post-id="postId"
     @update-replies="handleCurrentChange(pageNum, commentId)"
   />
   <el-pagination
@@ -35,8 +36,12 @@ const props = defineProps({
     type: [String, Number],
     required: true,
   },
+  postId: {
+    type: [String, Number],
+    required: true,
+  },
   replies: {
-    type: Object as PropType<Reply[]>,
+    type: Object as PropType<Comment[]>,
     required: true,
   },
   parent: {

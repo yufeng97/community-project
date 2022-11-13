@@ -1,12 +1,16 @@
 package com.nowcoder.community.service;
 
 import com.github.pagehelper.PageHelper;
+import com.nowcoder.community.component.UserContext;
 import com.nowcoder.community.entity.DiscussPost;
 import com.nowcoder.community.entity.Pagination;
+import com.nowcoder.community.entity.PostLikeRecord;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.mapper.DiscussPostMapper;
+import com.nowcoder.community.mapper.LikeMapper;
 import com.nowcoder.community.mapper.UserMapper;
 import com.nowcoder.community.util.SensitiveFilter;
+import com.nowcoder.community.vo.LoginUser;
 import com.nowcoder.community.vo.PostInfo;
 import com.nowcoder.community.vo.PostVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -21,27 +26,19 @@ import java.util.Map;
 public class DiscussPostService {
 
     @Resource
+    private UserContext userContext;
+
+    @Resource
     private DiscussPostMapper discussPostMapper;
 
     @Resource
     private UserMapper userMapper;
 
+    @Resource
+    private LikeMapper likeMapper;
+
     @Autowired
     private SensitiveFilter sensitiveFilter;
-
-    public List<DiscussPost> findDiscussPosts(int userId, int offset, int limit) {
-        return discussPostMapper.selectDiscussPosts(userId, offset, limit);
-    }
-
-    public int findDiscussPostRows(int userId) {
-        return discussPostMapper.selectDiscussPostRows(userId);
-    }
-
-    public List<DiscussPost> queryPostList(Pagination pagination) {
-        PageHelper.startPage(pagination);
-
-        return discussPostMapper.selectPostList(0);
-    }
 
     public List<PostInfo> queryPostInfoList(Pagination pagination) {
         PageHelper.startPage(pagination);
@@ -53,7 +50,21 @@ public class DiscussPostService {
                 postInfo.setAuthor(userMap.get(postInfo.getUserId()));
             }
         }
-
+        LoginUser loginUser = userContext.getUser();
+        if (loginUser != null) {
+            List<Integer> postIds = postInfos.stream().map(PostInfo::getId).toList();
+            if (!postIds.isEmpty()) {
+                Map<Integer, PostLikeRecord> postLikeMap = likeMapper.selectPostLikeStatusByListId(postIds, loginUser.getUserId());
+                for (PostInfo postInfo : postInfos) {
+                    Integer postId = postInfo.getId();
+                    if (postLikeMap.containsKey(postId)) {
+                        postInfo.setLiked(postLikeMap.get(postId).getStatus() != 0);
+                    } else {
+                        postInfo.setLiked(false);
+                    }
+                }
+            }
+        }
         return postInfos;
     }
 
@@ -67,10 +78,6 @@ public class DiscussPostService {
         post.setTitle(sensitiveFilter.filter(post.getTitle()));
         post.setContent(sensitiveFilter.filter(post.getContent()));
         return discussPostMapper.insertDiscussPost(post);
-    }
-
-    public DiscussPost findDiscussPostById(int id) {
-        return discussPostMapper.selectDiscussPostById(id);
     }
 
     public PostVo queryPostById(int id) {

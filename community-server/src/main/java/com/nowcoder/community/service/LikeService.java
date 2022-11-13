@@ -1,5 +1,8 @@
 package com.nowcoder.community.service;
 
+import com.nowcoder.community.mapper.CommentMapper;
+import com.nowcoder.community.mapper.DiscussPostMapper;
+import com.nowcoder.community.mapper.LikeMapper;
 import com.nowcoder.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -7,6 +10,9 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class LikeService {
@@ -14,13 +20,40 @@ public class LikeService {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-    public void postLike(int userId, int postId, boolean status) {
-        String postLikeKey = RedisKeyUtil.getPostLikeKey(postId);
+    @Autowired
+    private LikeMapper likeMapper;
 
+    @Autowired
+    private CommentMapper commentMapper;
+
+    @Autowired
+    private DiscussPostMapper discussPostMapper;
+
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public void postLike(int userId, int postId) {
+//        String postLikeKey = RedisKeyUtil.getPostLikeKey(postId);
+        boolean recordExist = likeMapper.checkPostLikeRecordExists(postId, userId);
+        if (!recordExist) {
+            likeMapper.insertPostLikeRecord(postId, userId, 1);
+        } else {
+            boolean status = likeMapper.selectPostLikeStatus(postId, userId);
+            likeMapper.updatePostLikeRecordStatus(postId, userId, !status);
+        }
+        long likeCount = likeMapper.selectPostLikeCount(postId);
+        discussPostMapper.updatePostLikeCount(postId, likeCount);
     }
 
-    public void commentLike(int userId, int commentId, boolean status) {
-
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
+    public void commentLike(int userId, int commentId) {
+        boolean recordExist = likeMapper.checkCommentLikeRecordExists(commentId, userId);
+        if (!recordExist) {
+            likeMapper.insertCommentLikeRecord(commentId, userId, 1);
+        } else {
+            boolean status = likeMapper.selectCommentLikeStatus(commentId, userId);
+            likeMapper.updateCommentLikeRecordStatus(commentId, userId, !status);
+        }
+        long likeCount = likeMapper.selectCommentLikeCount(commentId);
+        commentMapper.updateCommentLikeCount(commentId, likeCount);
     }
 
     public void like(int userId, int entityType, int entityId, int entityUserId) {
@@ -68,6 +101,14 @@ public class LikeService {
         String userLikeKey = RedisKeyUtil.getUserLikeKey(userId);
         Integer count = (Integer) redisTemplate.opsForValue().get(userLikeKey);
         return count == null ? 0 : count;
+    }
+
+    public boolean queryCommentLikeStatus(int commentId, int userId) {
+        return likeMapper.selectCommentLikeStatus(commentId, userId);
+    }
+
+    public boolean queryPostLikeStatus(int postId, int userId) {
+        return likeMapper.selectPostLikeStatus(postId, userId);
     }
 
 }

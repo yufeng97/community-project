@@ -9,5 +9,4 @@ import lombok.ToString;
 @ToString(callSuper = true)
 public class PostVo extends PostInfo {
     private String content;
-    private Boolean liked;
 }
