@@ -26,9 +26,6 @@ public class UserController {
     @GetMapping("")
     public CommonResult<LoginUser> getUserInfo() {
         LoginUser user = userContext.getUser();
-//        if (user == null) {
-//            return CommonResult.fail(HttpStatus.BAD_REQUEST, "Please login");
-//        }
         return CommonResult.success(user);
     }
 

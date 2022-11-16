@@ -174,12 +174,26 @@ const submitForm = () => {
           uuid: form.uuid,
         })
         .then((res: any) => {
+          console.log("login res", res);
+
           if (res.code !== 200) {
             ElMessage({
-              message: "验证码错误",
+              message: res.message,
               type: "error",
               duration: 2000,
             });
+            const msg = res.message;
+            if (msg === "验证码错误") {
+              errorMessage.errorCode = "验证码错误!";
+              errorMessage.errorPassword = "";
+            } else if (msg === "验证码已失效") {
+              errorMessage.errorCode = "验证码已失效!";
+              errorMessage.errorPassword = "";
+            } else if (msg === "用户名或密码错误") {
+              errorMessage.errorPassword = "密码错误！";
+              errorMessage.errorCode = "";
+            }
+            getCaptcha();
             return;
           }
           ElMessage({

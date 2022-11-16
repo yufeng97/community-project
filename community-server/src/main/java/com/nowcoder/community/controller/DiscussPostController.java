@@ -9,11 +9,9 @@ import com.nowcoder.community.entity.Pagination;
 import com.nowcoder.community.service.CommentService;
 import com.nowcoder.community.service.DiscussPostService;
 import com.nowcoder.community.service.LikeService;
-import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommonResult;
 import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.DataPage;
-import com.nowcoder.community.util.HostHolder;
 import com.nowcoder.community.vo.LoginUser;
 import com.nowcoder.community.vo.PostInfo;
 import com.nowcoder.community.vo.PostVo;
@@ -28,16 +26,10 @@ import java.util.List;
 public class DiscussPostController implements CommunityConstant {
 
     @Autowired
-    private HostHolder hostHolder;
-
-    @Autowired
     private UserContext userContext;
 
     @Autowired
     private DiscussPostService discussPostService;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private LikeService likeService;

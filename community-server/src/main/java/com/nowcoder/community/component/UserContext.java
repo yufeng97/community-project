@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class UserContext {
-    private ThreadLocal<LoginUser> loginUser = new ThreadLocal<>();
+    private final ThreadLocal<LoginUser> loginUser = new ThreadLocal<>();
 
     public void setUser(LoginUser loginUser) {
         this.loginUser.set(loginUser);

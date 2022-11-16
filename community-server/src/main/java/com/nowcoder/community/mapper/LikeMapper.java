@@ -31,7 +31,7 @@ public interface LikeMapper {
     @Select("select exists(select 1 from post_like_record where post_id=#{postId} and user_id=#{userId})")
     boolean checkPostLikeRecordExists(int postId, int userId);
 
-    @Select("select exists(select 1 from post_like_record where comment_id=#{commentId} and user_id=#{userId}")
+    @Select("select exists(select 1 from comment_like_record where comment_id=#{commentId} and user_id=#{userId})")
     boolean checkCommentLikeRecordExists(int commentId, int userId);
 
     @Select("select coalesce(max(`status`), 0) from post_like_record where post_id=#{postId} and user_id=#{userId}")

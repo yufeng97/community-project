@@ -9,7 +9,6 @@ import java.util.Map;
 @Mapper
 public interface UserMapper {
 
-
     User selectById(int id);
 
     @MapKey("id")

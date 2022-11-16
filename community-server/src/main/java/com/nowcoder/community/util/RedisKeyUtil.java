@@ -63,4 +63,8 @@ public class RedisKeyUtil {
     public static String getCommentLike(int commentId) {
         return PREFIX_COMMENT_LIKE + SPLIT + commentId;
     }
+
+    public static String getTicketFromTokenKey(String token) {
+        return token.replace(PREFIX_LOGIN_TOKEN + SPLIT, "");
+    }
 }

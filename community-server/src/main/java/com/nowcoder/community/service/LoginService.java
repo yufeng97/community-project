@@ -8,6 +8,7 @@ import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.exception.IllegalArgumentException;
 import com.nowcoder.community.exception.*;
+import com.nowcoder.community.mapper.LoginTicketMapper;
 import com.nowcoder.community.mapper.UserMapper;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.RedisKeyUtil;
@@ -40,6 +41,9 @@ public class LoginService {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+
     private static final int TICKET_VALID = 1;
     private static final int TICKET_INVALID = 0;
 
@@ -48,7 +52,6 @@ public class LoginService {
 
     public String login(LoginDto loginDto) {
         log.info(String.valueOf(loginDto));
-        validateCaptcha(loginDto.getCode(), loginDto.getUuid());
 
         String username = loginDto.getUsername();
         String password = loginDto.getPassword();
@@ -74,8 +77,9 @@ public class LoginService {
         // 生成登陆凭证
 //        String token = jwtToken.createToken(user);
         LoginUser loginUser = tokenService.createLoginUser(user);
+        log.debug("login user: {}", loginUser);
         String token = tokenService.createToken(loginUser);
-        recordLoginTicket(token, user.getId());
+        recordLoginTicket(token, loginUser);
 
         return token;
     }
@@ -89,27 +93,16 @@ public class LoginService {
         return false;
     }
 
-    private void validateCaptcha(String code, String captchaOwner) {
-        log.info(code + " " + captchaOwner);
-        String verifyKey = RedisKeyUtil.getCaptchaKey(captchaOwner);
-        String captcha = (String) redisTemplate.opsForValue().get(verifyKey);
-        redisTemplate.delete(verifyKey);
-        if (captcha == null) {
-            throw new CaptchaExpireException();
-        }
-
-        if (!code.equalsIgnoreCase(captcha)) {
-            throw new CaptchaException();
-        }
-    }
-
-    private void recordLoginTicket(String token, Integer userId) {
+    private void recordLoginTicket(String token, LoginUser loginUser) {
         LoginTicket loginTicket = new LoginTicket();
-        loginTicket.setUserId(userId);
-        loginTicket.setTicket(token);
-        loginTicket.setExpired(new Date(System.currentTimeMillis() + EXPIRED_SECONDS));
+        loginTicket.setUserId(loginUser.getUserId());
+        String ticket = token.replaceAll("-", "");
+        loginTicket.setTicket(RedisKeyUtil.getTicketFromTokenKey(ticket));
+        loginTicket.setExpired(new Date(loginUser.getExpireTime()));
         loginTicket.setStatus(TICKET_VALID);
-        String ticketKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
-        redisTemplate.opsForValue().set(ticketKey, loginTicket);
+//        String ticketKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+//        redisTemplate.opsForValue().set(ticketKey, loginTicket);
+        log.debug("login ticket {}", loginTicket);
+        loginTicketMapper.insertLoginTicket(loginTicket);
     }
 }

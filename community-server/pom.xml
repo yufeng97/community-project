@@ -104,6 +104,14 @@
 			<version>1.4.3</version>
 		</dependency>
 
+		<!-- caffeine -->
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>3.1.1</version>
+		</dependency>
+
+
 		<!-- spring-kafka -->
 		<dependency>
 			<groupId>org.springframework.kafka</groupId>

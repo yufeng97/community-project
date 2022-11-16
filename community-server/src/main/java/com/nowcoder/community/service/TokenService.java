@@ -1,15 +1,20 @@
 package com.nowcoder.community.service;
 
+import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.mapper.LoginTicketMapper;
+import com.nowcoder.community.mapper.UserMapper;
 import com.nowcoder.community.util.RedisKeyUtil;
 import com.nowcoder.community.util.StringUtils;
 import com.nowcoder.community.vo.LoginUser;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -20,6 +25,12 @@ public class TokenService {
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
+
+    @Autowired
+    private UserMapper userMapper;
+
     private static final long EXPIRED_MINUTES = 30L;
     private static final long LONGER_EXPIRED_MINUTES = 24 * 60L;
     private static final long REFRESH_MILLISECONDS = TimeUnit.MINUTES.toMillis(30L);
@@ -27,7 +38,13 @@ public class TokenService {
     public String createToken(LoginUser loginUser) {
         String token = RedisKeyUtil.getLoginTokenKey(UUID.randomUUID().toString());
         // 将token存进redis里
-        refreshToken(token, loginUser, EXPIRED_MINUTES);
+
+        try {
+            refreshToken(token, loginUser, EXPIRED_MINUTES);
+        } catch (RedisConnectionFailureException e) {
+            log.error("fail to save the token into redis");
+            log.error(e.getMessage());
+        }
         return token;
     }
 
@@ -40,6 +57,23 @@ public class TokenService {
                     refreshToken(token, loginUser, LONGER_EXPIRED_MINUTES);
                 }
                 return loginUser;
+            }
+        }
+        return null;
+    }
+
+    public LoginUser verifyTokenByDatabase(String token) {
+        if (StringUtils.isNotBlank(token)) {
+
+            String ticket = RedisKeyUtil.getTicketFromTokenKey(token).replaceAll("-", "");
+            LoginTicket loginTicket = loginTicketMapper.selectByTicket(ticket);
+
+            if (loginTicket != null && new Date().compareTo(loginTicket.getExpired()) < 0) {
+                // 更新过期时间
+                loginTicket.setExpired(new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(LONGER_EXPIRED_MINUTES)));
+                loginTicketMapper.updateTicket(loginTicket);
+                User user = userMapper.selectById(loginTicket.getUserId());
+                return createLoginUser(user);
             }
         }
         return null;
@@ -62,7 +96,12 @@ public class TokenService {
      */
     public void delLoginUser(String token) {
         if (StringUtils.isNotBlank(token)) {
-            redisTemplate.delete(token);
+            try {
+                redisTemplate.delete(token);
+            } catch (RedisConnectionFailureException e) {
+                log.error("redis connection failed, {}", e.getMessage());
+            }
+
         }
     }
 
@@ -70,8 +109,9 @@ public class TokenService {
         LoginUser loginUser = new LoginUser();
         loginUser.setUser(user);
         loginUser.setUserId(user.getId());
-        loginUser.setLoginTime(System.currentTimeMillis());
-        loginUser.setExpireTime(System.currentTimeMillis() + REFRESH_MILLISECONDS);
+        long currentTime = System.currentTimeMillis();
+        loginUser.setLoginTime(currentTime);
+        loginUser.setExpireTime(currentTime + REFRESH_MILLISECONDS);
         return loginUser;
     }
 }

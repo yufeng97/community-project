@@ -4,7 +4,6 @@ import com.nowcoder.community.entity.LoginTicket;
 import org.apache.ibatis.annotations.*;
 
 @Mapper
-@Deprecated
 public interface LoginTicketMapper {
 
     @Insert({"insert into login_ticket(user_id, ticket, status, expired) values(#{userId}, #{ticket}, #{status}, #{expired})"})
@@ -22,4 +21,7 @@ public interface LoginTicketMapper {
             "</script>"
     })
     int updateStatus(String ticket, int status);
+
+    @Update("update login_ticket set expired=#{expired} where id=#{id}")
+    int updateTicket(LoginTicket ticket);
 }

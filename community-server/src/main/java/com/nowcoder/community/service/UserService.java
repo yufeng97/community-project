@@ -3,6 +3,7 @@ package com.nowcoder.community.service;
 import com.nowcoder.community.component.MailClient;
 import com.nowcoder.community.entity.LoginTicket;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.mapper.LoginTicketMapper;
 import com.nowcoder.community.mapper.UserMapper;
 import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
@@ -25,8 +26,8 @@ public class UserService implements CommunityConstant {
     @Autowired
     private UserMapper userMapper;
 
-//    @Autowired
-//    private LoginTicketMapper loginTicketMapper;
+    @Autowired
+    private LoginTicketMapper loginTicketMapper;
 
     @Autowired
     private MailClient mailClient;
@@ -35,7 +36,7 @@ public class UserService implements CommunityConstant {
     private TemplateEngine templateEngine;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Value("${community.path.domain}")
     private String domain;
@@ -157,7 +158,7 @@ public class UserService implements CommunityConstant {
         loginTicket.setTicket(CommunityUtil.generateSimpleUUID());
         loginTicket.setStatus(0);
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000L));
-        // loginTicketMapper.insertLoginTicket(loginTicket);
+        loginTicketMapper.insertLoginTicket(loginTicket);
         String ticketKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
         redisTemplate.opsForValue().set(ticketKey, loginTicket);
 

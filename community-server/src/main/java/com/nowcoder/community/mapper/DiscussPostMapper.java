@@ -22,8 +22,8 @@ public interface DiscussPostMapper {
     @Select("select exists(select 1 from discuss_post where id=#{id} and status!=2)")
     boolean checkPostExistById(int id);
 
-//    @Insert("insert into discuss_post (user_id, title, content, type, status, create_time, comment_count, score)" +
-//            "   values (#{userId}, #{title}, #{content}, #{type}, #{status}, #{createTime}, #{commentCount}, #{score})")
+    @Insert("insert into discuss_post (user_id, title, content, type, status, create_time, comment_count, score)" +
+            "values (#{userId}, #{title}, #{content}, #{type}, #{status}, #{createTime}, #{commentCount}, #{score})")
     int insertDiscussPost(DiscussPost post);
 
     @Update("update discuss_post set comment_count = #{commentCount} where id = #{id}")
