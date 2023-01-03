@@ -1,10 +1,18 @@
 import request from "@/utils/request"
 import { Page } from "@/types"
 
-export function getMessage(query: Page) {
+export function getMessages(talkerId: number, lastUpdateTime?: number) {
     return request({
-        url: '/message',
+        url: `/message/${talkerId}`,
         method: 'get',
-        params: query
+        params: {lastUpdateTime: lastUpdateTime},
+    })
+}
+
+export function getChatList(lastUpdateTime?: number) {
+    return request({
+        url: '/message/list',
+        method: 'get',
+        params: {lastUpdateTime: lastUpdateTime},
     })
 }

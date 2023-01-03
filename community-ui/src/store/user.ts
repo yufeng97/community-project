@@ -1,7 +1,7 @@
 import { getToken, setToken, removeToken } from "@/utils/token";
 import { login, getInfo, logout } from "@/api/login";
 import { defineStore } from "pinia";
-import { LoginBody } from "@/types";
+import { LoginBody, User } from "@/types";
 import { ElMessage } from "element-plus";
 import { router } from "@/router";
 
@@ -12,10 +12,12 @@ export default defineStore({
     token: getToken(),
     name: "",
     avatar: "",
+    userMap: new Map<Number, User>(),
     // roles: [],
     // permissions: []
   }),
-  getters: {},
+  getters: {
+  },
   actions: {
     setToken(token: string) {
       this.token = token;
@@ -33,6 +35,12 @@ export default defineStore({
       this.isLogin = false;
       this.setToken("");
       removeToken();
+    },
+    saveUser(id: number, user: User) {
+      this.userMap.set(id, user);
+    },
+    loadUser(id: number) {
+      return this.userMap.get(id);
     },
     // setRoles(roles: never[]) {
     //     this.roles = roles

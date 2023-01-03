@@ -201,7 +201,7 @@ const submitForm = () => {
             type: "success",
             duration: 2000,
           });
-          router.push("/");
+          router.push("/home");
         })
         .catch((error) => {
           const msg = error.message;

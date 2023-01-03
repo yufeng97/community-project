@@ -1,12 +1,11 @@
 <template>
   <!-- 尾部 -->
-  <div class="nk-footer">
+  <footer class="nk-footer">
     <el-row>
       <el-col :span="10" class="qrcode-info">
         <!-- 二维码 -->
         <el-image
           class="qrcode"
-          style="width: 128px"
           src="https://uploadfiles.nowcoder.com/app/app_download.png"
         />
       </el-col>
@@ -23,44 +22,42 @@
           <a href="#" class="link-info">友情链接</a>
         </el-row>
         <!-- 下半部信息 -->
-        <el-row>
-          <table class="company-info">
-            <tbody>
-              <tr>
-                <td>
-                  公司地址：北京市朝阳区大屯路东金泉时代3-2708北京牛客科技有限公司
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  联系方式：010-60728802(电话)&nbsp;&nbsp;&nbsp;&nbsp;admin@nowcoder.com
-                </td>
-              </tr>
-              <tr>
-                <td>牛客科技©2018 All rights reserved</td>
-              </tr>
-            </tbody>
-          </table>
-          <table class="company-info">
-            <tbody>
-              <tr>
-                <td>京ICP备14055008号-4&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                <el-image
-                  style="width: 18px"
-                  src="http://static.nowcoder.com/company/images/res/ghs.png"
-                />
-                <td>京公网安备 11010502036488号</td>
-              </tr>
-            </tbody>
-          </table>
-        </el-row>
+        <table class="company-info">
+          <tbody>
+            <tr>
+              <td>
+                公司地址：北京市朝阳区大屯路东金泉时代3-2708北京牛客科技有限公司
+              </td>
+            </tr>
+            <tr>
+              <td>
+                联系方式：010-60728802(电话)&nbsp;&nbsp;&nbsp;&nbsp;admin@nowcoder.com
+              </td>
+            </tr>
+            <tr>
+              <td>牛客科技©2018 All rights reserved</td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="company-info">
+          <tbody>
+            <tr>
+              <td>京ICP备14055008号-4&nbsp;&nbsp;&nbsp;&nbsp;</td>
+              <el-image
+                style="width: 18px"
+                src="http://static.nowcoder.com/company/images/res/ghs.png"
+              />
+              <td>京公网安备 11010502036488号</td>
+            </tr>
+          </tbody>
+        </table>
       </el-col>
     </el-row>
-  </div>
+  </footer>
   <!-- </footer> -->
 </template>
 <script setup lang="ts"></script>
-<style scoped>
+<style lang="scss" scoped>
 a:link {
   text-decoration: none;
 }
@@ -76,17 +73,26 @@ a:active {
   color: #c1c1c9;
 }
 
-.nk-footer {
-  padding-top: 20px;
+footer {
+  background-color: #343a40;
+  color: var(--el-text-color-primary);
+  text-align: center;
+  line-height: 22px;
+  height: 148px;
+  /* display: flex;
+  flex-direction: column;
+  align-items: center; */
 }
 .qrcode-info {
-  text-align: right;
-  padding-right: 100px;
+  padding-right: 3rem;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
 }
 .qrcode {
+  width: 128px;
   border-radius: 4px;
   border: 4px solid rgb(255, 255, 255);
-  text-align: right;
 }
 .detail-info {
   border-left: 1px solid #888;

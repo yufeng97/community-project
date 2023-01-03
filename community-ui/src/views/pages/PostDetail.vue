@@ -42,7 +42,7 @@
 import NkPost from "@/components/NkPost.vue";
 import CommentList from "@/components/CommentList.vue";
 import CommentInput from "@/components/CommentInput.vue";
-import { computed, onBeforeMount, reactive, ref } from "vue";
+import { computed, onBeforeMount, onMounted, reactive, ref } from "vue";
 import { getPostDetail } from "@/api/home";
 import { addComment, getPostComments } from "@/api/comment";
 import { useRoute, useRouter } from "vue-router";
@@ -118,7 +118,7 @@ const getComments = (pageNum: number = 1) => {
   });
 };
 
-onBeforeMount(() => {
+onMounted(() => {
   getPost();
   getComments(page.pageNum);
 });

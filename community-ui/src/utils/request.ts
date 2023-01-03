@@ -4,7 +4,8 @@ import errorCode from "@/utils/errorCode";
 import { getToken } from "@/utils/token";
 import { tansParams } from "@/utils/tansParams";
 import { ElMessage } from "element-plus";
-import { router } from "@/router";
+import qs from "qs";
+
 axios.defaults.headers.common["Content-Type"] =
   "application/json;charset=utf-8";
 
@@ -31,11 +32,17 @@ service.interceptors.request.use(
     }
 
     //get请求映射params参数
-    if (config.method === "get" && config.params) {
-      var url = config.url + "?" + tansParams(config.params);
-      url = url.slice(0, -1);
-      config.params = {};
-      config.url = url;
+    if (config.method === "get") {
+      config.paramsSerializer = (params) => {
+        return qs.stringify(params, { arrayFormat: 'repeat' });
+      };
+
+      // if (config.params) {
+      //   var url = config.url + "?" + tansParams(config.params);
+      //   url = url.slice(0, -1);
+      //   config.params = {};
+      //   config.url = url;
+      // }
     }
 
     return config;
@@ -86,7 +93,7 @@ service.interceptors.response.use(
       ElMessage({
         message: "无效的会话，或者会话已过期，请重新登录。",
         type: "warning",
-        duration: 2000,
+        duration: 1000,
       });
       sessionStorage.clear(); //清除缓存
       localStorage.clear(); //清除缓存

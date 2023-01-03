@@ -13,7 +13,7 @@ export function login(data:LoginBody) {
 // 获取用户详细信息
 export function getInfo() {
     return request({
-        url: '/user',
+        url: '/user/me',
         method: 'get'
     })
 }

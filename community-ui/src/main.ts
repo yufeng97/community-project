@@ -6,6 +6,15 @@ import { createPinia, PiniaPluginContext } from "pinia"
 import { setStorage, getStorage } from './store/utils'
 import 'element-plus/dist/index.css'
 import '@/assets/css/global.css'
+// import VueVirtualScroller from 'vue-virtual-scroller'
+// import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+// 全局注册 虚拟滚动的组件
+
+import VirtualList from 'vue3-virtual-scroll-list'
+
+
+
+
 
 // import UndrawUi from 'undraw-ui'
 // import 'undraw-ui/dist/style.css'
@@ -41,11 +50,13 @@ const app = createApp(App)
 app.use(router)
 
 app.use(ElementPlus)
-
-
+app.component('virtual-list', VirtualList)
 const store = createPinia()
 store.use(piniaPlugin)
 app.use(store)
+
+// app.use(VueVirtualScroller)
+
 // app.use(createPinia())
 
 // app.use(UndrawUi)

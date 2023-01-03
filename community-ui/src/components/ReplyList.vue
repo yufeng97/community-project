@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { getCommentReplies } from "@/api/comment";
-import { Reply, Comment } from "@/types";
+import { Comment } from "@/types";
 import { PropType, ref } from "vue";
 import CommentItem from "./CommentItem.vue";
 

@@ -52,7 +52,7 @@ public class DiscussPostController implements CommunityConstant {
     }
 
     @GetMapping("/list")
-    public CommonResult<DataPage> getDiscussPostList(
+    public CommonResult<DataPage<PostInfo>> getDiscussPostList(
             @RequestParam(value = "pageNum", required = false, defaultValue = "1") Integer pageNum,
             @RequestParam(value = "pageSize", required = false, defaultValue = "7") Integer pageSize,
             @RequestParam(value = "orderBy", required = false, defaultValue = "createTime") String orderBy) {
@@ -72,7 +72,7 @@ public class DiscussPostController implements CommunityConstant {
 
         List<PostInfo> postInfos = discussPostService.queryPostInfoList(pagination);
         PageInfo<PostInfo> info = new PageInfo<>(postInfos);
-        DataPage dataPage = new DataPage();
+        DataPage<PostInfo> dataPage = new DataPage<>();
         dataPage.setRows(info.getList());
         dataPage.setTotal(info.getTotal());
         return CommonResult.success(dataPage);

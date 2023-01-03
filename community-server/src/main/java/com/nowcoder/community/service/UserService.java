@@ -54,6 +54,10 @@ public class UserService implements CommunityConstant {
         return user;
     }
 
+    public Map<Integer, User> queryUserByIds(List<Integer> ids) {
+        return userMapper.selectByListId(ids);
+    }
+
     public LoginUser loadById(int id) {
         User user = userMapper.selectById(id);
         return null;

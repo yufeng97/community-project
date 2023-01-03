@@ -77,3 +77,24 @@ export interface Page {
 
 }
 
+export interface ChatRoom {
+    id: number,
+    user: User,
+    lastMessage: string,
+    updateTime: string,
+}
+
+export interface MessageRaw {
+    id: number,
+    senderId: number,
+    recipientId: number,
+    content: string,
+    createTime: string, 
+}
+
+export interface Message {
+    readonly id: number,
+    user: User,
+    content: string,
+    createTime: string,
+}

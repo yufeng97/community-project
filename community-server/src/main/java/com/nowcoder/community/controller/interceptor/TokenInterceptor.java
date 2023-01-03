@@ -20,7 +20,6 @@ public class TokenInterceptor implements HandlerInterceptor {
     @Autowired
     private UserContext userContext;
 
-
     @Autowired
     private TokenService tokenService;
 

@@ -38,7 +38,6 @@ public class TokenService {
     public String createToken(LoginUser loginUser) {
         String token = RedisKeyUtil.getLoginTokenKey(UUID.randomUUID().toString());
         // 将token存进redis里
-
         try {
             refreshToken(token, loginUser, EXPIRED_MINUTES);
         } catch (RedisConnectionFailureException e) {

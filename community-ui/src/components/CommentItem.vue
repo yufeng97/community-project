@@ -73,7 +73,6 @@
               :reply-count="comment.replyCount"
               @click="replyButtonClick"
             />
-
           </div>
         </div>
 

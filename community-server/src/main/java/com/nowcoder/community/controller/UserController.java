@@ -7,10 +7,10 @@ import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommonResult;
 import com.nowcoder.community.vo.LoginUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -23,7 +23,7 @@ public class UserController {
     private UserService userService;
 
     @LoginRequired
-    @GetMapping("")
+    @GetMapping("/me")
     public CommonResult<LoginUser> getUserInfo() {
         LoginUser user = userContext.getUser();
         return CommonResult.success(user);
@@ -33,6 +33,12 @@ public class UserController {
     public CommonResult<User> getUserById(@PathVariable("id") int id) {
         User user = userService.findUserById(id);
         return CommonResult.success(user);
+    }
+
+    @GetMapping("")
+    public CommonResult<Map<Integer, User>> getUserByListId(@RequestParam(value = "ids") List<Integer> ids) {
+        Map<Integer, User> userMap = userService.queryUserByIds(ids);
+        return CommonResult.success(userMap);
     }
 
 }

@@ -10,8 +10,7 @@ const store = userStore();
 
 const getAccess = () => {
   if (store.isLogin) {
-    store.getInfo()
-    .catch((err) => {
+    store.getInfo().catch((err) => {
       store.clearLoginStatus();
     });
   }
@@ -21,4 +20,10 @@ onBeforeMount(() => {
   getAccess();
 });
 </script>
-<style></style>
+
+<style>
+#app {
+  display: flex;
+  flex-direction: column;
+}
+</style>
